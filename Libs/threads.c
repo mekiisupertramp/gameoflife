@@ -3,3 +3,7 @@
 //
 
 #include "threads.h"
+
+void* worker(void* threadData){
+
+}

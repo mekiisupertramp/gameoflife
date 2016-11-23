@@ -21,6 +21,7 @@ struct gfx_context_t {
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
+	uint32_t *pixelsNextState;
 	uint32_t *pixels;
 	int width;
 	int height;

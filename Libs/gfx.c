@@ -19,9 +19,10 @@ struct gfx_context_t* gfx_create(char *title, uint width, uint height) {
 	SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
 			SDL_TEXTUREACCESS_STREAMING, width, height);
 	uint32_t *pixels = malloc(width*height*sizeof(uint32_t));
+	uint32_t *pixelsNextState = malloc(width*height*sizeof(uint32_t));
 	struct gfx_context_t *ctxt = malloc(sizeof(struct gfx_context_t));
 
-	if (!window || !renderer || !texture || !pixels || !ctxt) goto error;
+	if (!window || !renderer || !texture || !pixels || !pixelsNextState || !ctxt) goto error;
 
 	ctxt->renderer = renderer;
 	ctxt->texture = texture;
@@ -29,6 +30,7 @@ struct gfx_context_t* gfx_create(char *title, uint width, uint height) {
 	ctxt->width = width;
 	ctxt->height = height;
 	ctxt->pixels = pixels;
+    ctxt->pixelsNextState = pixelsNextState;
 
 	SDL_ShowCursor(SDL_DISABLE);
 	gfx_clear(ctxt, COLOR_BLACK);
