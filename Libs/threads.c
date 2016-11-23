@@ -5,8 +5,9 @@
 #include "threads.h"
 
 void* worker(void* threadData){
+	threadsData* tdata = (threadsData*) threadData;
 	return NULL;
-}
+}    
 
 void* display(void* gfx){
 	return NULL;
