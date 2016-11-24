@@ -10,10 +10,7 @@
 
 typedef struct threadsData{
     int ID;
-    //int* lastState;
-    //int* nextState;
     struct gfx_context_t* gfx;
-    int start,stop;
 } threadsData;
 
 void* worker(void* threadData);

@@ -5,7 +5,7 @@
 #include "threads.h"
 
 void* worker(void* threadData){
-	threadsData* tdata = (threadsData*) threadData;
+	//threadsData* tdata = (threadsData*) threadData;
 	return NULL;
 }    
 

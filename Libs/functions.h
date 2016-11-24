@@ -13,6 +13,8 @@ typedef struct display_st{
 }displaySt;
 
 void initGfx(struct gfx_context_t* gfx, int seed, double probability);
-void initStruct(threadsData* thData, uint id, struct gfx_context_t* gfx, uint scope);
+void initStruct(threadsData* thData, uint id, struct gfx_context_t* gfx);
+double myRand();
+void showSyntax();
 
 #endif //GAMEOFLIFE_FUNCTIONS_H

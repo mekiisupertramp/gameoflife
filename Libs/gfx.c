@@ -73,6 +73,7 @@ void gfx_destroy(struct gfx_context_t *ctxt) {
 	SDL_DestroyRenderer(ctxt->renderer);
 	SDL_DestroyWindow(ctxt->window);
 	free(ctxt->pixels);
+	free(ctxt->pixelsNextState);
 	ctxt->texture = NULL;
 	ctxt->renderer = NULL;
 	ctxt->window = NULL;
