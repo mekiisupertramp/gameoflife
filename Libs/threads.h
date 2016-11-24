@@ -10,7 +10,9 @@
 
 typedef struct threadsData{
     int ID;
+    int nbrThreads;
     struct gfx_context_t* gfx;
+    // surement une barrière ou une sémaphore
 } threadsData;
 
 void* worker(void* threadData);

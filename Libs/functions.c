@@ -17,7 +17,7 @@ void initGfx(struct gfx_context_t* gfx, int seed, double probability){
 	gfx_clear(gfx, COLOR_BLACK);
 	for(int x = 1; x < (gfx->height-1); x++){
 		for(int y = 1; y < (gfx->width-1); y++){
-			val = myRand();
+			val = myRand(seed);
 			if(val <= probability) gfx_putpixel(gfx,x,y,COLOR_WHITE);
 			else gfx_putpixel(gfx,x,y,COLOR_BLACK);
 		}
@@ -29,22 +29,41 @@ void initGfx(struct gfx_context_t* gfx, int seed, double probability){
  * params: thData struct to initialize
  * 		   id of the thread
  * 		   gfx context to share to calculate
- * return: double between 0 and 1
+ * return: none
  **********************************************************************/
-void initStruct(threadsData* thData, uint id, struct gfx_context_t* gfx){
+void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads){
 	thData->ID = id;
+	thData->nbrThreads = nbrThreads;
 	thData->gfx = gfx;
 }
 
 /***********************************************************************
+ * initialize the struct to give to the displayer thread
+ * params: displayVar struct to initialize
+ * 		   gfx context to share to show
+ * 		   frequency of the display
+ * return: none
+ **********************************************************************/
+void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency){
+	displayVar->gfx = gfx;
+	displayVar->frequency = frequency;
+}
+
+/***********************************************************************
  * generates a rondom nomber between 0 and 1
- * params: none
+ * params: seed for the randomness
  * return: double between 0 and 1
  **********************************************************************/
-double myRand(){
+double myRand(int seed){
+	srand(seed);
 	return (rand()/(double)RAND_MAX);
 }
 
+/***********************************************************************
+ * show the syntax to throw the game
+ * params: none
+ * return: none
+ **********************************************************************/
 void showSyntax(){
 	printf("syntax : gameoflife <width> <height> <seed> <p> <freq> <#workers>\n");
 	printf("\t- <width> and <height> are integers specifying the dimensions of\n\

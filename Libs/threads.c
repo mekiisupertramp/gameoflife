@@ -5,7 +5,16 @@
 #include "threads.h"
 
 void* worker(void* threadData){
-	//threadsData* tdata = (threadsData*) threadData;
+	threadsData* tdata = (threadsData*) threadData;
+	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
+	int i = 0;
+	int cellToTest = tdata->ID;
+	
+	while(cellToTest <= scope){
+		//work(var);
+		cellToTest = ++i * tdata->nbrThreads + tdata->ID;
+	}
+	// barrière
 	return NULL;
 }    
 

@@ -19,17 +19,16 @@ int main(int argc, char** argv){
 		pthread_t displayer;
 		pthread_t workers[nbrWorkers];
 		pthread_t escaper;
+		displaySt displayVar;
 		struct gfx_context_t* gfx = gfx_create("Game of life bitches", width, height);
 		
+		// initialisation of the structures with data
 		initGfx(gfx,seed,probability);
-		
-		displaySt displayVar;
-		displayVar.gfx = gfx;
-		displayVar.frequency = frequency;
+		initDisplayStruct(&displayVar, gfx, frequency);
 		
 		// workers thread
 		for(int i = 0; i < nbrWorkers; i++){
-			initStruct(&thData[i], i, gfx);
+			initWorkersStruct(&thData[i], i, gfx, nbrWorkers);
 			if(pthread_create(&workers[i],NULL,worker,&thData[i]) != 0){
 				fprintf(stderr, "workers pthread_create failed !\n");
 				return EXIT_FAILURE;
@@ -47,6 +46,7 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}
 		
+		// join thread
 		if (pthread_join(escaper,NULL) != 0) {
 			perror("escape pthread_join");
 			return EXIT_FAILURE;
