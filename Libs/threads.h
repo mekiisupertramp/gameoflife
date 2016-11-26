@@ -7,6 +7,8 @@
 
 #include "gfx.h"
 #include <pthread.h>
+#include <unistd.h>
+//#include "functions.h"
 
 typedef struct threadsData{
     int ID;

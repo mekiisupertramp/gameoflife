@@ -3,21 +3,22 @@
 //
 
 #include "Libs/header.h"
+
 int main(int argc, char** argv){
     if(argc != 7){
 		showSyntax();
 	}else{
 		
-		uint width = atoi(argv[1]);
+	uint width = atoi(argv[1]);
 		uint height = atoi(argv[2]);
 		int seed = atoi(argv[3]);
 		double probability = atof(argv[4]);
 		uint frequency = atoi(argv[5]);
 		uint nbrWorkers = atoi(argv[6]);
-		threadsData thData[nbrWorkers];
+		threadsData thData[nbrWorkers];		
 		
 		pthread_t displayer;
-		pthread_t workers[nbrWorkers];
+		pthread_t workers[nbrWorkers];					
 		pthread_t escaper;
 		displaySt displayVar;
 		struct gfx_context_t* gfx = gfx_create("Game of life bitches", width, height);
@@ -25,7 +26,7 @@ int main(int argc, char** argv){
 		// initialisation of the structures with data
 		initGfx(gfx,seed,probability);
 		initDisplayStruct(&displayVar, gfx, frequency);
-		
+	/*	
 		// workers thread
 		for(int i = 0; i < nbrWorkers; i++){
 			initWorkersStruct(&thData[i], i, gfx, nbrWorkers);
@@ -33,12 +34,12 @@ int main(int argc, char** argv){
 				fprintf(stderr, "workers pthread_create failed !\n");
 				return EXIT_FAILURE;
 			}
-		}
+		}	*/
 		// display thread
 		if(pthread_create(&displayer,NULL,display,&displayVar) != 0){
 			fprintf(stderr, "display pthread_create failed !\n");
 			return EXIT_FAILURE;
-		}
+		}					
 		
 		// escape thread
 		if(pthread_create(&escaper,NULL,escape,NULL) != 0){
@@ -52,8 +53,9 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}
 		
-		free(thData[0].gfx);
-		free(thData);
+		gfx_destroy(gfx);
+		//free(thData[0].gfx);
+		//free(thData);
 	}
 	return 0;
 }
