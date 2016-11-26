@@ -18,9 +18,13 @@ void* worker(void* threadData){
 	return NULL;
 }    
 
+
 void* display(void* gfx){
-	//threadsData* display = (threadsData*) gfx;
-	//gfx_present(display->gfx);
+	displaySt* display = (displaySt*) gfx;
+	while(1){		
+		gfx_present(display->gfx);
+		usleep(10000);
+	}	
 	return NULL;
 }
 
@@ -45,8 +49,6 @@ SDL_Keycode keypress() {
 void* escape(){	
 	while(keypress() != SDLK_ESCAPE){
 		usleep(20000);
-		printf("non finish!\n");
 	}	
-	printf("finish!\n");
 	return NULL;
 }		
