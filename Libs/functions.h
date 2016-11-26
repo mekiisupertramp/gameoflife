@@ -7,11 +7,6 @@
 #include "gfx.h"
 #include "threads.h" 
 
-typedef struct display_st{
-	struct gfx_context_t* gfx;
-	uint frequency;
-}displaySt;
-
 void initGfx(struct gfx_context_t* gfx, int seed, double probability);
 void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency);
 void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads);
