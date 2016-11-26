@@ -19,6 +19,9 @@ void* worker(void* threadData){
 }    
 
 void* display(void* gfx){
+	// gestion barrier
+	gfx_present(struct gfx_context_t *ctxt);
+	// gestion barrier
 	return NULL;
 }
 
