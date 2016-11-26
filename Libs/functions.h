@@ -10,7 +10,7 @@
 void initGfx(struct gfx_context_t* gfx, int seed, double probability);
 void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency);
 void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads);
-double myRand(int seed);
+void exitTreads(pthread_t* workers, int nbrWorkers, pthread_t* displayer);
 void showSyntax();
 
 #endif //GAMEOFLIFE_FUNCTIONS_H

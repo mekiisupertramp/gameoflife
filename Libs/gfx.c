@@ -49,6 +49,15 @@ void gfx_putpixel(struct gfx_context_t *ctxt, int x, int y, uint32_t color) {
 	if (x < ctxt->width && y < ctxt->height)
 		ctxt->pixels[ctxt->width*y+x] = color;
 }
+/// Draw a pixel in the specified graphic context.
+/// @param ctxt Graphic context where the pixel is to be drawn.
+/// @param x X coordinate of the pixel.
+/// @param y Y coordinate of the pixel.
+/// @param color Color of the pixel.
+void gfx_putpixel2(struct gfx_context_t *ctxt, int x, int y, uint32_t color) {
+	if (x < ctxt->width && y < ctxt->height)
+		ctxt->pixelsNextState[ctxt->width*y+x] = color;
+}
 
 /// Clear the specified graphic context.
 /// @param ctxt Graphic context to clear.

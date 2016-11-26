@@ -6,10 +6,10 @@
 
 /***********************************************************************
  * initialize the window context with random live cells and dead extrems
- * params: gfx context to share to calculate
- * 		   seed to give to the srand function
- * 		   probability of having a cell alive
- * return: double between 0 and 1
+ * @param gfx context to share to calculate
+ * @param seed to give to the srand function
+ * @param probability of having a cell alive
+ * @return double between 0 and 1
  **********************************************************************/
 void initGfx(struct gfx_context_t* gfx, int seed, double probability){
 	srand(seed);
@@ -17,19 +17,19 @@ void initGfx(struct gfx_context_t* gfx, int seed, double probability){
 	gfx_clear(gfx, COLOR_BLACK);
 	for(int x = 1; x < (gfx->height-1); x++){
 		for(int y = 1; y < (gfx->width-1); y++){
-			val = myRand(seed);
-			if(val <= probability) gfx_putpixel(gfx,x,y,COLOR_WHITE);
-			else gfx_putpixel(gfx,x,y,COLOR_BLACK);
+			val = (rand()/(double)RAND_MAX);
+			if(val <= probability) gfx_putpixel(gfx,x,y,ALIVE);
+			else gfx_putpixel(gfx,x,y,DEAD);
 		}
 	}
 }
 
 /***********************************************************************
  * initialize the struct to give to each thread
- * params: thData struct to initialize
- * 		   id of the thread
- * 		   gfx context to share to calculate
- * return: none
+ * @param thData struct to initialize
+ * @param id of the thread
+ * @param gfx context to share to calculate
+ * @return none
  **********************************************************************/
 void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads){
 	thData->ID = id;
@@ -39,10 +39,10 @@ void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, i
 
 /***********************************************************************
  * initialize the struct to give to the displayer thread
- * params: displayVar struct to initialize
- * 		   gfx context to share to show
- * 		   frequency of the display
- * return: none
+ * @param displayVar struct to initialize
+ * @param gfx context to share to show
+ * @param frequency of the display
+ * @return none
  **********************************************************************/
 void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency){
 	displayVar->gfx = gfx;
@@ -50,19 +50,24 @@ void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int fre
 }
 
 /***********************************************************************
- * generates a rondom nomber between 0 and 1
- * params: seed for the randomness
- * return: double between 0 and 1
+ * cancel the threads for a proper exit
+ * @param workers to cancel
+ * @param nbrWorkers to cancel
+ * @param displayer to cancel
+ * @return none
  **********************************************************************/
-double myRand(int seed){
-	srand(seed);
-	return (rand()/(double)RAND_MAX);
+void exitTreads(pthread_t* workers, int nbrWorkers, pthread_t* displayer){
+	pthread_cancel(*displayer);	
+	for (int i = 0; i < nbrWorkers; i++)
+	{
+		pthread_cancel(workers[i]);
+	}
 }
 
 /***********************************************************************
  * show the syntax to throw the game
- * params: none
- * return: none
+ * @param : none
+ * @return : none
  **********************************************************************/
 void showSyntax(){
 	printf("syntax : gameoflife <width> <height> <seed> <p> <freq> <#workers>\n");

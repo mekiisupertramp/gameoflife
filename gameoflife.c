@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 		// initialisation of the structures with data
 		initGfx(gfx,seed,probability);
 		initDisplayStruct(&displayVar, gfx, frequency);
-	/*	
+		
 		// workers thread
 		for(int i = 0; i < nbrWorkers; i++){
 			initWorkersStruct(&thData[i], i, gfx, nbrWorkers);
@@ -34,7 +34,7 @@ int main(int argc, char** argv){
 				fprintf(stderr, "workers pthread_create failed !\n");
 				return EXIT_FAILURE;
 			}
-		}	*/
+		}	
 		// display thread
 		if(pthread_create(&displayer,NULL,display,&displayVar) != 0){
 			fprintf(stderr, "display pthread_create failed !\n");
@@ -53,8 +53,10 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}
 		
+		// proper exit
+		//exitTreads(workers, nbrWorkers, &displayer);
+		
 		gfx_destroy(gfx);
-		//free(thData[0].gfx);
 		//free(thData);
 	}
 	return 0;

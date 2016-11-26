@@ -28,6 +28,7 @@ struct gfx_context_t {
 };
 
 extern void gfx_putpixel(struct gfx_context_t *ctxt, int x, int y, uint32_t color);
+void gfx_putpixel2(struct gfx_context_t *ctxt, int x, int y, uint32_t color);
 extern void gfx_clear(struct gfx_context_t *ctxt, uint32_t color);
 extern struct gfx_context_t* gfx_create(char *text, uint width, uint height);
 extern void gfx_destroy(struct gfx_context_t *ctxt);
