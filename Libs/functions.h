@@ -8,7 +8,7 @@
 #include "threads.h" 
 
 void initGfx(struct gfx_context_t* gfx, int seed, double probability);
-void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency, int *nbrWorkers, sem_t* semDisplay, sem_t* semWorkers);
+void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency, uint *nbrWorkers, sem_t* semDisplay, sem_t* semWorkers);
 void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads, sem_t* semDisplay, sem_t* semWorkers);
 void exitTreads(pthread_t* workers, int nbrWorkers, pthread_t* displayer);
 void showSyntax();

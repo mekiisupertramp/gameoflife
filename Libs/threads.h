@@ -18,7 +18,7 @@
 typedef struct display_st{
 	struct gfx_context_t* gfx;
 	uint frequency;
-	int *nbrWorkers;
+    uint *nbrWorkers;
 	sem_t* semDisplay;
 	sem_t* semWorkers;
 }displaySt;

@@ -11,8 +11,7 @@ int main(int argc, char** argv){
 	}else{
 		sem_t semDisplay;
 		sem_t semWorkers;
-		sem_init(&semDisplay, 1, nbrWorkers);
-		sem_init(&semWorkers, 1, 0);
+
 
 		uint width = atoi(argv[1]);
 		uint height = atoi(argv[2]);
@@ -20,8 +19,10 @@ int main(int argc, char** argv){
 		double probability = atof(argv[4]);
 		uint frequency = atoi(argv[5]);
 		uint nbrWorkers = atoi(argv[6]);
-		threadsData thData[nbrWorkers];		
-		
+		threadsData thData[nbrWorkers];
+
+		sem_init(&semDisplay, 1, nbrWorkers);
+		sem_init(&semWorkers, 1, 0);
 		pthread_t displayer;
 		pthread_t workers[nbrWorkers];					
 		pthread_t escaper;

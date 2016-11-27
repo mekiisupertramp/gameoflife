@@ -22,7 +22,7 @@ void* worker(void* threadData){
 	int cellToTest = tdata->ID;
 
 	while(1){
-		sem_wait(threadData.semWorkers);		
+		sem_wait(tdata->semWorkers);
 		int i = 0;
 		
 		while(cellToTest <= scope){
@@ -36,7 +36,7 @@ void* worker(void* threadData){
 		gfx_present(tdata->gfx);
 		
 		usleep(100000);
-		sem_post(threadData.semWorkers);
+		sem_post(tdata->semDisplay);
 	}
 	return NULL;
 }

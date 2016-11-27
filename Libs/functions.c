@@ -52,7 +52,7 @@ void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, i
  * @param frequency of the display
  * @return none
  **********************************************************************/
-void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency){
+void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency, uint *nbrWorkers, sem_t* semDisplay, sem_t* semWorkers){
 	displayVar->gfx = gfx;
 	displayVar->frequency = frequency;
 	displayVar->nbrWorkers = nbrWorkers;
