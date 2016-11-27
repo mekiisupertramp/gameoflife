@@ -33,8 +33,8 @@ typedef struct threadsData{
 
 void* worker(void* threadData);
 void lifeIsSad(int cellToTest, struct gfx_context_t* gfx);
-bool isAlive(int line, int col, struct gfx_context_t* gfx);
-int countNeighboursAlive(int line, int col, struct gfx_context_t* gfx);
+uint32_t isAlive(int x, int y, struct gfx_context_t* gfx);
+int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx);
 void* display(void* displaySt);
 void swapPixel(struct gfx_context_t* gfx);
 void* escape();

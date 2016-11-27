@@ -18,7 +18,7 @@ void* worker(void* threadData){
 	threadsData* tdata = (threadsData*) threadData;
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
 	int cellToTest = tdata->ID;
-
+gfx_present(tdata->gfx);
 	while(1){				
 				
 		int i = 0;
@@ -33,7 +33,7 @@ void* worker(void* threadData){
 		swapPixel(tdata->gfx);
 		gfx_present(tdata->gfx);
 		
-		usleep(100000);		
+		usleep(50000);		
 
 	}
 	return NULL;
@@ -57,17 +57,10 @@ void* worker(void* threadData){
  **********************************************************************/
 void lifeIsSad(int cellToTest, struct gfx_context_t* gfx){
 	
-	int line = (cellToTest/(gfx->width-2)) + 1;
-	int col = (cellToTest%(gfx->width-2)) + 1;
-
-	printf("li : %d\n",line);
-	printf("co : %d\n",col);	
-
-	if(isAlive(line,col,gfx)){
-		gfx_putpixel2(gfx,line,col,ALIVE);
-	}else{
-		gfx_putpixel2(gfx,line,col,DEAD);
-	}
+	int x = (cellToTest%(gfx->width-2)) + 1;
+	int y = (cellToTest/(gfx->width-2)) + 1;
+	
+	gfx_putpixel2(gfx,x,y,isAlive(x,y,gfx));
 }
 
 /***********************************************************************
@@ -77,21 +70,21 @@ void lifeIsSad(int cellToTest, struct gfx_context_t* gfx){
  * @param gfx Context
  * @return bool true if survive else false
  **********************************************************************/
-bool isAlive(int line, int col, struct gfx_context_t* gfx){
-	int neighboursAlive = countNeighboursAlive(line,col,gfx);
-	// gfx->pixels[gfx->width*col+line]
-	if(gfx->pixels[gfx->width*col+line] == ALIVE){
-		if((neighboursAlive == 2) || (neighboursAlive == 3)){
-			return true;
+uint32_t isAlive(int x, int y, struct gfx_context_t* gfx){
+	int neighboursAlive = countNeighboursAlive(x,y,gfx);
+	
+	if(gfx->pixels[gfx->width*y+x] == ALIVE){
+		if((neighboursAlive >= 2) && (neighboursAlive <= 3)){
+			return ALIVE;
 		}else{
-			return false;
+			return DEAD;
 		}
 	}
 	else{
 		if(neighboursAlive == 3){
-			return true;
+			return ALIVE;
 		}else{
-			return false;	
+			return DEAD;	
 		}
 	}
 }
@@ -103,14 +96,15 @@ bool isAlive(int line, int col, struct gfx_context_t* gfx){
  * @param gfx Context
  * @return int The number of neighbourgs alive
  **********************************************************************/
-int countNeighboursAlive(int line, int col, struct gfx_context_t* gfx){
+int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
 	int neighboursAlive = 0;
 	for (int i = -1; i <= 1; i++)
 	{
 		for (int e = -1; e <= 1; e++)
 		{
-			if(((i != 0) && (e != 0) && (gfx->pixels[gfx->width*(col+i)+(line+e)]) == ALIVE) ){
-				neighboursAlive++;
+			if(!(i == 0 && e == 0)){
+				if((gfx->pixels[(gfx->width*(y+i))+(x+e)]) == ALIVE)
+					neighboursAlive++;
 			}
 		}
 	}
