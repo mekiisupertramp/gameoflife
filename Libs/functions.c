@@ -20,10 +20,10 @@ void initGfx(struct gfx_context_t* gfx, int seed, double probability){
 			val = (rand()/(double)RAND_MAX);
 			if(val <= probability){
  				gfx_putpixel(gfx,x,y,ALIVE); 
-				gfx_putpixel2(gfx,x,y,ALIVE);
+			//	gfx_putpixel2(gfx,x,y,ALIVE);
 			}else{ 
 				gfx_putpixel(gfx,x,y,DEAD); 
-				gfx_putpixel2(gfx,x,y,DEAD);
+			//	gfx_putpixel2(gfx,x,y,DEAD);
 			}
 		}
 	}
@@ -68,7 +68,9 @@ void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int fre
  * @return none
  **********************************************************************/
 void exitTreads(pthread_t* workers, int nbrWorkers, pthread_t* displayer){
+	
 	pthread_cancel(*displayer);	
+	
 	for (int i = 0; i < nbrWorkers; i++)
 	{
 		pthread_cancel(workers[i]);

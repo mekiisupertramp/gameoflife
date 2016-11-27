@@ -9,9 +9,9 @@ int main(int argc, char** argv){
     if(argc != 7){
 		showSyntax();
 	}else{
+		printf("Program start\n");
 		sem_t semDisplay;
 		sem_t semWorkers;
-
 
 		uint width = atoi(argv[1]);
 		uint height = atoi(argv[2]);
@@ -29,11 +29,11 @@ int main(int argc, char** argv){
 		displaySt displayVar;
 		struct gfx_context_t* gfx = gfx_create("Game of life bitches", width, height);
 		
-		// initialisation of the structures with data
+		// initialization of the structures with data
 		initGfx(gfx,seed,probability);
 		initDisplayStruct(&displayVar, gfx, frequency, &nbrWorkers, &semDisplay, &semWorkers);
 
-		// initialisation of the semaphores
+		// initialization of the semaphores
 /*		sem_t mutex1;
 		sem_init(&mutex1, 0, 0);
 		displayVar.sem1 = &mutex1;
@@ -68,30 +68,26 @@ int main(int argc, char** argv){
 			perror("escape pthread_join");
 			return EXIT_FAILURE;
 		}
-		
 
-
-
-		printf("finish programm\n");
 		// proper exit
 		exitTreads(workers, nbrWorkers, &displayer);
 
-		// join thread workers
+		// join thread workers, waiting for their destruction
 		for(int i = 0; i < nbrWorkers; i++){
 			if(pthread_join(workers[i],NULL) != 0){
 				perror("workers pthread_join");
 				return EXIT_FAILURE;
 			}
 		}
-		// join thread displayer
+		// join thread displayer, waiting for his destruction
 		if (pthread_join(displayer,NULL) != 0) {
 			perror("displayer pthread_join");
 			return EXIT_FAILURE;
 		}
 		
-		// ici, il faut attendre que les threads soient killés(workers & displayer), avant de destroy gfx 
-		// sinon, je sais pas ce qui se passe, mais le programme refuse de s'arrêter (BLAZEVIC)
 		gfx_destroy(gfx);
+		
+		printf("Program finished\n");
 	}
 	return 0;
 }

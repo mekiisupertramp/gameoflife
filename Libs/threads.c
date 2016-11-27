@@ -12,8 +12,6 @@
  **********************************************************************/
 void* worker(void* threadData){
 
-
-
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	
@@ -43,16 +41,12 @@ void* worker(void* threadData){
 	/*	printf("worker is waiting\n");
 		sem_wait(tdata->sem2);
 		printf("worker is processing\n");
-	*/
-
-
-		// barrière
-/*		printf("worker finish processing\n");
+		printf("worker finish processing\n");
 		sem_post(tdata->sem1);
 		printf("worker free affichage\n");		*/
 
 /***********************************************************************
- * kill or give life to a cell by editing his colour 
+ * kill or give birth to a cell by editing his colour 
  * @param cellToTest the number of the cell to check
  * @param gfx Context
  * @return none
@@ -67,10 +61,10 @@ void lifeIsSad(int cellToTest, struct gfx_context_t* gfx){
 
 /***********************************************************************
  * say if the cell will survive or not
- * @param line Line of the cell to check
- * @param col Col of the cell to check
+ * @param x Col of the cell to check
+ * @param y Line of the cell to check
  * @param gfx Context
- * @return bool true if survive else false
+ * @return int The new colour of the cell
  **********************************************************************/
 uint32_t isAlive(int x, int y, struct gfx_context_t* gfx){
 	int neighboursAlive = countNeighboursAlive(x,y,gfx);
@@ -93,8 +87,8 @@ uint32_t isAlive(int x, int y, struct gfx_context_t* gfx){
 
 /***********************************************************************
  * Count the number of neighbours alive of a cell
- * @param line Line to check the neigbours
- * @param col Col to check the neigbours
+ * @param x Col to check the neigbours
+ * @param y Line to check the neigbours
  * @param gfx Context
  * @return int The number of neighbourgs alive
  **********************************************************************/
@@ -122,7 +116,23 @@ void* display(void* gfx){
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	displaySt* displayVar = (displaySt*) gfx;
-		
+	
+	while(1){
+	
+		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
+			sem_wait(displayVar->semDisplay);
+		}	
+		usleep(10000);		
+
+		//swapPixel(gfx);
+
+		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
+			sem_post(displayVar->semWorkers);
+		}
+		//gfx_present(displayVar->gfx);
+	}
+	
+	/*	
 	while(1){
 		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
 			sem_wait(displayVar->semDisplay);
@@ -132,15 +142,20 @@ void* display(void* gfx){
 	//	printf("display is displaying\n");		
 		usleep(10000);		
 		gfx_present(displayVar->gfx);
-		//swapPixel(gfx);
+		swapPixel(gfx);
 	//	sem_post(displayVar->sem2);
 		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
 			sem_post(displayVar->semWorkers);
 		}
-	}
+	}*/
 	return NULL;
 }
 
+/***********************************************************************
+ * Swap pointers of pixels and pixelsNextState 
+ * @param gfx Context
+ * @return none
+ **********************************************************************/
 void swapPixel(struct gfx_context_t* gfx){
 	uint32_t *temp = gfx->pixels;
 	gfx->pixels = gfx->pixelsNextState;
