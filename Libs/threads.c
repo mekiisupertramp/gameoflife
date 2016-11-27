@@ -20,7 +20,8 @@ void* worker(void* threadData){
 	int cellToTest = tdata->ID;
 
 	while(1){
-		sem_wait(tdata->semWorkers);
+		sem_wait(&(tdata->semWorkers[0][tdata->ID]));
+
 		int i = 0;
 		
 		while(cellToTest <= scope){
@@ -113,9 +114,9 @@ void* display(void* gfx){
 		usleep(100000);	
 		swapPixel(displayVar->gfx);
 		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
-			sem_post(displayVar->semWorkers);
+			sem_post(&(displayVar->semWorkers[0][i]));
 		}
-		gfx_present(displayVar->gfx);			
+		gfx_present(displayVar->gfx);
 	}
 	return NULL;
 }

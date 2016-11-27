@@ -20,7 +20,7 @@ typedef struct display_st{
 	uint frequency;
     uint *nbrWorkers;
 	sem_t* semDisplay;
-	sem_t* semWorkers;
+	sem_t** semWorkers;
 }displaySt;
 
 typedef struct threadsData{
@@ -29,7 +29,7 @@ typedef struct threadsData{
     struct gfx_context_t* gfx;
     // surement une barrière ou une sémaphore
 	sem_t* semDisplay;
-	sem_t* semWorkers;
+	sem_t** semWorkers;
 } threadsData;
 
 void* worker(void* threadData);
