@@ -130,7 +130,7 @@ void* display(void* gfx){
 	displaySt* displayVar = (displaySt*) gfx;
 		
 	while(1){
-		for (int i = 0; i < displayVar->nbrWorkers; ++i) {
+		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
 			sem_wait(displayVar->semDisplay);
 		}
 	//	printf("display wait\n");
@@ -140,7 +140,7 @@ void* display(void* gfx){
 		gfx_present(displayVar->gfx);
 		//swapPixel(gfx);
 	//	sem_post(displayVar->sem2);
-		for (int i = 0; i < displayVar->nbrWorkers; ++i) {
+		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
 			sem_post(displayVar->semWorkers);
 		}
 	}
