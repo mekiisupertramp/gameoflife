@@ -18,8 +18,9 @@
 typedef struct display_st{
 	struct gfx_context_t* gfx;
 	uint frequency;
-	sem_t* sem1;
-	sem_t* sem2;
+    uint *nbrWorkers;
+	sem_t* semDisplay;
+	sem_t* semWorkers;
 }displaySt;
 
 typedef struct threadsData{
@@ -27,8 +28,8 @@ typedef struct threadsData{
     int nbrThreads;
     struct gfx_context_t* gfx;
     // surement une barrière ou une sémaphore
-	sem_t* sem1;
-	sem_t* sem2;
+	sem_t* semDisplay;
+	sem_t* semWorkers;
 } threadsData;
 
 void* worker(void* threadData);

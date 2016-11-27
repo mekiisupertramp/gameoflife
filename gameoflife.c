@@ -9,15 +9,20 @@ int main(int argc, char** argv){
     if(argc != 7){
 		showSyntax();
 	}else{
-		
+		sem_t semDisplay;
+		sem_t semWorkers;
+
+
 		uint width = atoi(argv[1]);
 		uint height = atoi(argv[2]);
 		int seed = atoi(argv[3]);
 		double probability = atof(argv[4]);
 		uint frequency = atoi(argv[5]);
 		uint nbrWorkers = atoi(argv[6]);
-		threadsData thData[nbrWorkers];		
-		
+		threadsData thData[nbrWorkers];
+
+		sem_init(&semDisplay, 1, nbrWorkers);
+		sem_init(&semWorkers, 1, 0);
 		pthread_t displayer;
 		pthread_t workers[nbrWorkers];					
 		pthread_t escaper;
@@ -26,7 +31,7 @@ int main(int argc, char** argv){
 		
 		// initialisation of the structures with data
 		initGfx(gfx,seed,probability);
-		initDisplayStruct(&displayVar, gfx, frequency);
+		initDisplayStruct(&displayVar, gfx, frequency, &nbrWorkers, &semDisplay, &semWorkers);
 
 		// initialisation of the semaphores
 /*		sem_t mutex1;
@@ -40,7 +45,7 @@ int main(int argc, char** argv){
 		
 		// workers thread
 		for(int i = 0; i < nbrWorkers; i++){
-			initWorkersStruct(&thData[i], i, gfx, nbrWorkers);
+			initWorkersStruct(&thData[i], i, gfx, nbrWorkers, &semDisplay, &semWorkers);
 			if(pthread_create(&workers[i],NULL,worker,&thData[i]) != 0){
 				fprintf(stderr, "workers pthread_create failed !\n");
 				return EXIT_FAILURE;

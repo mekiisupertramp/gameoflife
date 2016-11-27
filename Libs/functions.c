@@ -36,10 +36,13 @@ void initGfx(struct gfx_context_t* gfx, int seed, double probability){
  * @param gfx context to share to calculate
  * @return none
  **********************************************************************/
-void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads){
+void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads, sem_t* semDisplay, sem_t* semWorkers){
 	thData->ID = id;
 	thData->nbrThreads = nbrThreads;
 	thData->gfx = gfx;
+	thData->semWorkers =
+	thData->semDisplay=semDisplay;
+	thData->semWorkers=semWorkers;
 }
 
 /***********************************************************************
@@ -49,9 +52,12 @@ void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, i
  * @param frequency of the display
  * @return none
  **********************************************************************/
-void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency){
+void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency, uint *nbrWorkers, sem_t* semDisplay, sem_t* semWorkers){
 	displayVar->gfx = gfx;
 	displayVar->frequency = frequency;
+	displayVar->nbrWorkers = nbrWorkers;
+	displayVar->semWorkers = semWorkers;
+	displayVar->semDisplay = semDisplay;
 }
 
 /***********************************************************************

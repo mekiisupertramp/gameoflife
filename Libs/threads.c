@@ -11,16 +11,18 @@
  * @return NULL
  **********************************************************************/
 void* worker(void* threadData){
-	
+
+
+
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	
 	threadsData* tdata = (threadsData*) threadData;
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
 	int cellToTest = tdata->ID;
-gfx_present(tdata->gfx);
-	while(1){				
-				
+
+	while(1){
+		sem_wait(tdata->semWorkers);
 		int i = 0;
 		
 		while(cellToTest <= scope){
@@ -32,12 +34,12 @@ gfx_present(tdata->gfx);
 		
 		swapPixel(tdata->gfx);
 		gfx_present(tdata->gfx);
-		
-		usleep(50000);		
 
+		usleep(100000);
+		sem_post(tdata->semDisplay);
 	}
 	return NULL;
-}    
+}
 	/*	printf("worker is waiting\n");
 		sem_wait(tdata->sem2);
 		printf("worker is processing\n");
@@ -122,13 +124,19 @@ void* display(void* gfx){
 	displaySt* displayVar = (displaySt*) gfx;
 		
 	while(1){
+		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
+			sem_wait(displayVar->semDisplay);
+		}
 	//	printf("display wait\n");
 	//	sem_wait(displayVar->sem1);
 	//	printf("display is displaying\n");		
 		usleep(10000);		
-		//gfx_present(displayVar->gfx);
+		gfx_present(displayVar->gfx);
 		//swapPixel(gfx);
-	//	sem_post(displayVar->sem2);		
+	//	sem_post(displayVar->sem2);
+		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
+			sem_post(displayVar->semWorkers);
+		}
 	}
 	return NULL;
 }
