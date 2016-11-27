@@ -5,6 +5,8 @@
 #ifndef GAMEOFLIFE_THREADS_H
 #define GAMEOFLIFE_THREADS_H
 
+#define _GNU_SOURCE
+#include <semaphore.h>
 #include "gfx.h"
 #include <pthread.h>
 #include <unistd.h>
@@ -16,6 +18,8 @@
 typedef struct display_st{
 	struct gfx_context_t* gfx;
 	uint frequency;
+	sem_t* sem1;
+	sem_t* sem2;
 }displaySt;
 
 typedef struct threadsData{
@@ -23,6 +27,8 @@ typedef struct threadsData{
     int nbrThreads;
     struct gfx_context_t* gfx;
     // surement une barrière ou une sémaphore
+	sem_t* sem1;
+	sem_t* sem2;
 } threadsData;
 
 void* worker(void* threadData);

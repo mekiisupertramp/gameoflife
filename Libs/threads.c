@@ -17,16 +17,37 @@ void* worker(void* threadData){
 	
 	threadsData* tdata = (threadsData*) threadData;
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
-	int i = 0;
 	int cellToTest = tdata->ID;
-	
-	while(cellToTest <= scope){
-		lifeIsSad(cellToTest, tdata->gfx);
-		cellToTest = ++i * tdata->nbrThreads + tdata->ID;
+
+	while(1){				
+				
+		int i = 0;
+		
+		while(cellToTest <= scope){
+			lifeIsSad(cellToTest, tdata->gfx);
+			cellToTest = ++i * tdata->nbrThreads + tdata->ID;			
+		}
+		
+		cellToTest = tdata->ID;
+		
+		swapPixel(tdata->gfx);
+		gfx_present(tdata->gfx);
+		
+		usleep(100000);		
+
 	}
-	// barrière
 	return NULL;
 }    
+	/*	printf("worker is waiting\n");
+		sem_wait(tdata->sem2);
+		printf("worker is processing\n");
+	*/
+
+
+		// barrière
+/*		printf("worker finish processing\n");
+		sem_post(tdata->sem1);
+		printf("worker free affichage\n");		*/
 
 /***********************************************************************
  * kill or give life to a cell by editing his colour 
@@ -38,11 +59,15 @@ void lifeIsSad(int cellToTest, struct gfx_context_t* gfx){
 	
 	int line = (cellToTest/(gfx->width-2)) + 1;
 	int col = (cellToTest%(gfx->width-2)) + 1;
-	
-	if(isAlive(line,col,gfx))
+
+	printf("li : %d\n",line);
+	printf("co : %d\n",col);	
+
+	if(isAlive(line,col,gfx)){
 		gfx_putpixel2(gfx,line,col,ALIVE);
-	else
+	}else{
 		gfx_putpixel2(gfx,line,col,DEAD);
+	}
 }
 
 /***********************************************************************
@@ -54,17 +79,20 @@ void lifeIsSad(int cellToTest, struct gfx_context_t* gfx){
  **********************************************************************/
 bool isAlive(int line, int col, struct gfx_context_t* gfx){
 	int neighboursAlive = countNeighboursAlive(line,col,gfx);
+	// gfx->pixels[gfx->width*col+line]
 	if(gfx->pixels[gfx->width*col+line] == ALIVE){
-		if(neighboursAlive >= 2 && neighboursAlive <= 3)
+		if((neighboursAlive == 2) || (neighboursAlive == 3)){
 			return true;
-		else
+		}else{
 			return false;
+		}
 	}
-	else {
-		if(neighboursAlive == 3)
+	else{
+		if(neighboursAlive == 3){
 			return true;
-		else
+		}else{
 			return false;	
+		}
 	}
 }
 
@@ -79,10 +107,11 @@ int countNeighboursAlive(int line, int col, struct gfx_context_t* gfx){
 	int neighboursAlive = 0;
 	for (int i = -1; i <= 1; i++)
 	{
-		for (int e = -1; e < 1; e++)
+		for (int e = -1; e <= 1; e++)
 		{
-			if(i != 0 && e != 0 && (gfx->pixels[gfx->width*(col+i)+(line+e)] == ALIVE) )
+			if(((i != 0) && (e != 0) && (gfx->pixels[gfx->width*(col+i)+(line+e)]) == ALIVE) ){
 				neighboursAlive++;
+			}
 		}
 	}
 	return neighboursAlive;	
@@ -97,17 +126,21 @@ void* display(void* gfx){
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	displaySt* displayVar = (displaySt*) gfx;
-	swapPixel(gfx);
-	
-	while(1){		
-		gfx_present(displayVar->gfx);
-		usleep(1000);
+		
+	while(1){
+	//	printf("display wait\n");
+	//	sem_wait(displayVar->sem1);
+	//	printf("display is displaying\n");		
+		usleep(10000);		
+		//gfx_present(displayVar->gfx);
+		//swapPixel(gfx);
+	//	sem_post(displayVar->sem2);		
 	}
 	return NULL;
 }
 
 void swapPixel(struct gfx_context_t* gfx){
-	uint32_t* temp = gfx->pixels;
+	uint32_t *temp = gfx->pixels;
 	gfx->pixels = gfx->pixelsNextState;
 	gfx->pixelsNextState = temp;
 }

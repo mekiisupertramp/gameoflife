@@ -18,8 +18,13 @@ void initGfx(struct gfx_context_t* gfx, int seed, double probability){
 	for(int x = 1; x < (gfx->height-1); x++){
 		for(int y = 1; y < (gfx->width-1); y++){
 			val = (rand()/(double)RAND_MAX);
-			if(val <= probability) gfx_putpixel(gfx,x,y,ALIVE);
-			else gfx_putpixel(gfx,x,y,DEAD);
+			if(val <= probability){
+ 				gfx_putpixel(gfx,x,y,ALIVE); 
+				gfx_putpixel2(gfx,x,y,ALIVE);
+			}else{ 
+				gfx_putpixel(gfx,x,y,DEAD); 
+				gfx_putpixel2(gfx,x,y,DEAD);
+			}
 		}
 	}
 }

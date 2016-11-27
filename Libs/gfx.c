@@ -64,12 +64,20 @@ void gfx_putpixel2(struct gfx_context_t *ctxt, int x, int y, uint32_t color) {
 /// @param color Color to use.
 void gfx_clear(struct gfx_context_t *ctxt, uint32_t color) {
 	memset(ctxt->pixels, color, ctxt->width*ctxt->height*sizeof(uint32_t));
+	memset(ctxt->pixelsNextState, color, ctxt->width*ctxt->height*sizeof(uint32_t));
 }
 
 /// Display the graphic context.
 /// @param ctxt Graphic context to clear.
 void gfx_present(struct gfx_context_t *ctxt) {
 	SDL_UpdateTexture(ctxt->texture, NULL, ctxt->pixels, ctxt->width*sizeof(uint32_t));
+	SDL_RenderCopy(ctxt->renderer, ctxt->texture, NULL, NULL);
+	SDL_RenderPresent(ctxt->renderer);
+}
+/// Display the graphic context.
+/// @param ctxt Graphic context to clear.
+void gfx_present2(struct gfx_context_t *ctxt) {
+	SDL_UpdateTexture(ctxt->texture, NULL, ctxt->pixelsNextState, ctxt->width*sizeof(uint32_t));
 	SDL_RenderCopy(ctxt->renderer, ctxt->texture, NULL, NULL);
 	SDL_RenderPresent(ctxt->renderer);
 }
@@ -87,6 +95,7 @@ void gfx_destroy(struct gfx_context_t *ctxt) {
 	ctxt->renderer = NULL;
 	ctxt->window = NULL;
 	ctxt->pixels = NULL;
+	ctxt->pixelsNextState = NULL;
 	SDL_Quit();
 	free(ctxt);
 }

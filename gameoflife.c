@@ -4,12 +4,13 @@
 
 #include "Libs/header.h"
 
+
 int main(int argc, char** argv){
     if(argc != 7){
 		showSyntax();
 	}else{
 		
-	uint width = atoi(argv[1]);
+		uint width = atoi(argv[1]);
 		uint height = atoi(argv[2]);
 		int seed = atoi(argv[3]);
 		double probability = atof(argv[4]);
@@ -26,6 +27,16 @@ int main(int argc, char** argv){
 		// initialisation of the structures with data
 		initGfx(gfx,seed,probability);
 		initDisplayStruct(&displayVar, gfx, frequency);
+
+		// initialisation of the semaphores
+/*		sem_t mutex1;
+		sem_init(&mutex1, 0, 0);
+		displayVar.sem1 = &mutex1;
+		thData[0].sem1 = &mutex1;
+		sem_t mutex2;
+		sem_init(&mutex2, 0, 1);
+		displayVar.sem2 = &mutex2;
+		thData[0].sem2 = &mutex2;		*/
 		
 		// workers thread
 		for(int i = 0; i < nbrWorkers; i++){
@@ -39,7 +50,7 @@ int main(int argc, char** argv){
 		if(pthread_create(&displayer,NULL,display,&displayVar) != 0){
 			fprintf(stderr, "display pthread_create failed !\n");
 			return EXIT_FAILURE;
-		}					
+		}				
 		
 		// escape thread
 		if(pthread_create(&escaper,NULL,escape,NULL) != 0){
@@ -47,17 +58,35 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}
 		
-		// join thread
+		// join thread escaper
 		if (pthread_join(escaper,NULL) != 0) {
 			perror("escape pthread_join");
 			return EXIT_FAILURE;
 		}
 		
+
+
+
+		printf("finish programm\n");
 		// proper exit
-		//exitTreads(workers, nbrWorkers, &displayer);
+		exitTreads(workers, nbrWorkers, &displayer);
+
+		// join thread workers
+		for(int i = 0; i < nbrWorkers; i++){
+			if(pthread_join(workers[i],NULL) != 0){
+				perror("workers pthread_join");
+				return EXIT_FAILURE;
+			}
+		}
+		// join thread displayer
+		if (pthread_join(displayer,NULL) != 0) {
+			perror("displayer pthread_join");
+			return EXIT_FAILURE;
+		}
 		
+		// ici, il faut attendre que les threads soient killés(workers & displayer), avant de destroy gfx 
+		// sinon, je sais pas ce qui se passe, mais le programme refuse de s'arrêter (BLAZEVIC)
 		gfx_destroy(gfx);
-		//free(thData);
 	}
 	return 0;
 }
