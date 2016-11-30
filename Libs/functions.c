@@ -3,6 +3,7 @@
 //
 
 #include "functions.h"
+
 /***********************************************************************
  * initialize the window context with random live cells and dead extrems
  * @param gfx context to share to calculate
@@ -10,7 +11,6 @@
  * @param probability of having a cell alive
  * @return double between 0 and 1
  **********************************************************************/
-<<<<<<< HEAD
 void initData(thData* data, int ID, int nbrThreads, int frequency, 
 					sem_t* display, sem_t** workers, sem_t* gfxSynchro,  int width, int height, 
 																				double seed, double probability){
@@ -20,57 +20,11 @@ void initData(thData* data, int ID, int nbrThreads, int frequency,
 	data->semWorkers = workers;
 	data->semDisplay = display;
 	data->gfxSynchro = gfxSynchro;
-=======
-void initData(thData* data, struct gfx_context_t* gfx, int ID, int nbrThreads, int frequency, 
-					int* nbrWorkers, sem_t* display, sem_t** workers, int width, int height, double seed, double probability){
-	data->ID = ID;
-	data->nbrThreads = nbrThreads;	
-	data->gfx = gfx;
-	data->frequency = frequency;
-	data->nbrWorkers = nbrWorkers;
-	data->semWorkers = workers;
-	data->semDisplay = display;
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
 	data->width = width;
 	data->height = height;
 	data->seed = seed;
 	data->probability = probability;
 }
-<<<<<<< HEAD
-=======
-
-
-
-/***********************************************************************
- * initialize the struct to give to each thread
- * @param thData struct to initialize
- * @param id of the thread
- * @param gfx context to share to calculate
- * @return none
- **********************************************************************/
-/*void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads, sem_t* semDisplay, sem_t** semWorkers){
-	thData->ID = id;
-	thData->nbrThreads = nbrThreads;
-	thData->gfx = gfx;
-	thData->semWorkers = semWorkers;
-	thData->semDisplay = semDisplay;
-}*/
-
-/***********************************************************************
- * initialize the struct to give to the displayer thread
- * @param displayVar struct to initialize
- * @param gfx context to share to show
- * @param frequency of the display
- * @return none
- **********************************************************************/
-/*void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency, uint *nbrWorkers, sem_t* semDisplay, sem_t** semWorkers){
-	displayVar->gfx = gfx;
-	displayVar->frequency = frequency;
-	displayVar->nbrWorkers = nbrWorkers;
-	displayVar->semWorkers = semWorkers;
-	displayVar->semDisplay = semDisplay;
-}*/
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
 
 /***********************************************************************
  * cancel the threads for a proper exit

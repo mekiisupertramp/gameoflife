@@ -3,6 +3,7 @@
 //
 
 #include "threads.h"
+#include "gfx.h"
 
 /***********************************************************************
  * function given to the thread wich will calculate cell's states
@@ -14,11 +15,7 @@ void* worker(void* threadData){
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	
-<<<<<<< HEAD
 	thData* tdata = (thData*)threadData;
-=======
-	thData* tdata = (thData*) threadData;
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
 	int cellToTest = tdata->ID;
 	
@@ -33,6 +30,7 @@ void* worker(void* threadData){
 			lifeIsSad(cellToTest, tdata->gfx);
 			cellToTest = ++i * tdata->nbrThreads + tdata->ID;			
 		}
+		
 		cellToTest = tdata->ID;
 		sem_post(tdata->semDisplay);
 	}
@@ -109,7 +107,6 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
 void* display(void* gfx){
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-<<<<<<< HEAD
 
 	thData* displayVar = (thData*) gfx;
 	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, 
@@ -120,18 +117,10 @@ void* display(void* gfx){
 	double deltaT=0;
 	double time = (double)(1.0/displayVar->frequency);
 	clock_gettime(CLOCK_MONOTONIC, &start);	
-=======
-	
-	thData* displayVar = (thData*) gfx;
-	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, displayVar->height);
-	initGfx(displayVar->gfx,displayVar->seed,displayVar->probability);
-		
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
 	while(1){
 		for (int i = 0; i < displayVar->nbrThreads; ++i) {
 			sem_wait(displayVar->semDisplay);
 		}	
-<<<<<<< HEAD
 		clock_gettime(CLOCK_MONOTONIC, &finish);
 		deltaT = finish.tv_sec-start.tv_sec;
 		deltaT += (finish.tv_nsec-start.tv_nsec)/1000000000.0;		
@@ -143,14 +132,6 @@ void* display(void* gfx){
 		gfx_present(displayVar->gfx);
 		sem_post(displayVar->gfxSynchro);
 		clock_gettime(CLOCK_MONOTONIC, &start);
-=======
-		usleep(10000);	
-		swapPixel(displayVar->gfx);
-		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
-			sem_post(&(displayVar->semWorkers[0][i]));
-		}
-		gfx_present(displayVar->gfx);
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
 	}
 	return NULL;
 }
@@ -184,11 +165,7 @@ void* escape(){
 		usleep(20000);
 	}	
 	return NULL;
-<<<<<<< HEAD
 }	
-=======
-}
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
 
 /***********************************************************************
  * initialize the window context with random live cells and dead extrems
@@ -197,11 +174,7 @@ void* escape(){
  * @param probability of having a cell alive
  * @return double between 0 and 1
  **********************************************************************/
-<<<<<<< HEAD
 void initGfx(struct gfx_context_t* gfx, double seed, double probability){
-=======
-void initGfx(struct gfx_context_t* gfx, int seed, double probability){
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
 	srand(seed);
 	double val;
 	gfx_clear(gfx, COLOR_BLACK);
@@ -209,23 +182,12 @@ void initGfx(struct gfx_context_t* gfx, int seed, double probability){
 		for(int y = 1; y < (gfx->width-1); y++){
 			val = (rand()/(double)RAND_MAX);
 			if(val <= probability){
-<<<<<<< HEAD
  				gfx_putpixel(gfx,x,y,ALIVE); 
 				gfx_putpixel2(gfx,x,y,ALIVE);
 			}else{ 
 				gfx_putpixel(gfx,x,y,DEAD); 
-=======
-				gfx_putpixel(gfx,x,y,ALIVE);
-				gfx_putpixel2(gfx,x,y,ALIVE);
-			}else{
-				gfx_putpixel(gfx,x,y,DEAD);
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
 				gfx_putpixel2(gfx,x,y,DEAD);
 			}
 		}
 	}
-<<<<<<< HEAD
 }	
-=======
-}
->>>>>>> 2b5b543f5f8929021414bcffd4da37e7118c272f
