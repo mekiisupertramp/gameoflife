@@ -18,8 +18,10 @@ int main(int argc, char** argv){
 		int nbrWorkers = atoi(argv[6]);
 	
 		thData data[nbrWorkers];
+		pthread_barrier_t barrier;
+		pthread_barrier_init(&barrier,NULL,nbrWorkers+1);
 
-		sem_init(&semDisplay, 1, 0);
+	//	sem_init(&semDisplay, 1, 0);
 
 		pthread_t displayer;
 		pthread_t workers[nbrWorkers];					
@@ -28,18 +30,17 @@ int main(int argc, char** argv){
 		
 		// init datas	
 		for(int i=0; i<nbrWorkers; i++){
-			initData(&data[i],&gfx,i,nbrWorkers,frequency,&semDisplay, width, height, seed, probability);
+			initData(&data[i],&gfx,i,nbrWorkers,frequency,&semDisplay,&barrier, width, height, seed, probability);
 		}
 
 		// display thread
 		if(pthread_create(&displayer,NULL,display,&data[0]) != 0){
 			fprintf(stderr, "display pthread_create failed !\n");
 			return EXIT_FAILURE;
-		}										
-
-		sem_wait(&semDisplay);
-
-		printf("deprAprès");
+		}
+		//sem_wait(&semDisplay);
+		usleep(1000000);
+		printf("display finish\n");
 
 		// workers thread
 		for(int i = 0; i < nbrWorkers; i++){
@@ -48,6 +49,8 @@ int main(int argc, char** argv){
 				return EXIT_FAILURE;
 			}
 		}
+
+		printf("workers finish\n");
 
 		// escape thread
 		if(pthread_create(&escaper,NULL,escape,NULL) != 0){

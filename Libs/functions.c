@@ -11,7 +11,7 @@
  * @return double between 0 and 1
  **********************************************************************/
 void initData(thData* data, struct gfx_context_t* gfx, int ID, int nbrThreads, int frequency, 
-					sem_t* display, int width, int height, double seed, double probability){
+					sem_t* display, pthread_barrier_t* b, int width, int height, double seed, double probability){
 	data->ID = ID;
 	data->nbrThreads = nbrThreads;	
 	data->gfx = gfx;
@@ -21,6 +21,7 @@ void initData(thData* data, struct gfx_context_t* gfx, int ID, int nbrThreads, i
 	data->height = height;
 	data->seed = seed;
 	data->probability = probability;
+	data->b = b;
 }
 
 /***********************************************************************

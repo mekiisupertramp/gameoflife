@@ -22,6 +22,7 @@ typedef struct thData{
 	struct gfx_context_t* gfx;
 	int frequency;
 	sem_t* semDisplay;
+	pthread_barrier_t* b;
 	int width;
 	int height;
 	double seed;

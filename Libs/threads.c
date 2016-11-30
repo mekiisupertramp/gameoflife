@@ -10,6 +10,8 @@
  * @return NULL
  **********************************************************************/
 void* worker(void* threadData){
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
 
 	thData* tdata = (thData*) threadData;
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
@@ -17,12 +19,13 @@ void* worker(void* threadData){
 
 	while(1){
 		int i = 0;
-		usleep(100000);
 		while(cellToTest <= scope){
 			lifeIsSad(cellToTest, tdata->gfx);
 			cellToTest = ++i * tdata->nbrThreads + tdata->ID;			
 		}
 		cellToTest = tdata->ID;
+		pthread_barrier_wait(tdata->b);
+		pthread_barrier_wait(tdata->b);
 	}
 	return NULL;
 }
@@ -95,10 +98,13 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
  * @return none
  **********************************************************************/
 void* display(void* gfx){
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+
 	thData* displayVar = (thData*) gfx;
 	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, displayVar->height);
 	initGfx(displayVar->gfx,displayVar->seed,displayVar->probability);
-	sem_post(displayVar->semDisplay);
+//	sem_post(displayVar->semDisplay);
 	struct timespec start, finish;
 	double deltaT = 0;
 	double time = (double)(1.0/displayVar->frequency);
@@ -109,7 +115,9 @@ void* display(void* gfx){
 		deltaT = finish.tv_sec - start.tv_sec;
 		deltaT += (finish.tv_nsec - start.tv_nsec)/1000000000.0;
 		if(((time-deltaT)*1000000.0)>0) usleep((time-deltaT)*1000000.0);
+		pthread_barrier_wait(displayVar->b);
 		swapPixel(displayVar->gfx);
+		pthread_barrier_wait(displayVar->b);
 		gfx_present(displayVar->gfx);
 		clock_gettime(CLOCK_MONOTONIC,&start);
 	}
