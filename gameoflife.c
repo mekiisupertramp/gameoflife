@@ -10,8 +10,6 @@ int main(int argc, char** argv){
 		showSyntax();
 	}else{
 		sem_t semDisplay;
-		sem_t* semWorkers;
-
 		int width = atoi(argv[1]);
 		int height = atoi(argv[2]);
 		double seed = atoi(argv[3]);
@@ -21,12 +19,7 @@ int main(int argc, char** argv){
 	
 		thData data[nbrWorkers];
 
-		sem_init(&semDisplay, 1, nbrWorkers);
-		semWorkers = malloc(sizeof(sem_t)*nbrWorkers);
-		int i;
-		for (i = 0; i < nbrWorkers; ++i) {
-			sem_init(&(semWorkers[i]), 1, 0);
-		}
+		sem_init(&semDisplay, 1, 0);
 
 		pthread_t displayer;
 		pthread_t workers[nbrWorkers];					
@@ -35,17 +28,18 @@ int main(int argc, char** argv){
 		
 		// init datas	
 		for(int i=0; i<nbrWorkers; i++){
-			initData(&data[i],&gfx,i,nbrWorkers,frequency,&nbrWorkers,&semDisplay,&semWorkers, width, height, seed, probability);
+			initData(&data[i],&gfx,i,nbrWorkers,frequency,&semDisplay, width, height, seed, probability);
 		}
-		
+
 		// display thread
 		if(pthread_create(&displayer,NULL,display,&data[0]) != 0){
 			fprintf(stderr, "display pthread_create failed !\n");
 			return EXIT_FAILURE;
 		}										
-		
-		usleep(10000000);
-		
+
+		sem_wait(&semDisplay);
+
+		printf("deprAprès");
 
 		// workers thread
 		for(int i = 0; i < nbrWorkers; i++){
@@ -54,7 +48,7 @@ int main(int argc, char** argv){
 				return EXIT_FAILURE;
 			}
 		}
-		
+
 		// escape thread
 		if(pthread_create(&escaper,NULL,escape,NULL) != 0){
 			fprintf(stderr, "escape pthread_create failed !\n");

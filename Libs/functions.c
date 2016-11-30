@@ -11,51 +11,17 @@
  * @return double between 0 and 1
  **********************************************************************/
 void initData(thData* data, struct gfx_context_t* gfx, int ID, int nbrThreads, int frequency, 
-					int* nbrWorkers, sem_t* display, sem_t** workers, int width, int height, double seed, double probability){
+					sem_t* display, int width, int height, double seed, double probability){
 	data->ID = ID;
 	data->nbrThreads = nbrThreads;	
 	data->gfx = gfx;
 	data->frequency = frequency;
-	data->nbrWorkers = nbrWorkers;
-	data->semWorkers = workers;
 	data->semDisplay = display;
 	data->width = width;
 	data->height = height;
 	data->seed = seed;
 	data->probability = probability;
 }
-
-
-
-/***********************************************************************
- * initialize the struct to give to each thread
- * @param thData struct to initialize
- * @param id of the thread
- * @param gfx context to share to calculate
- * @return none
- **********************************************************************/
-/*void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads, sem_t* semDisplay, sem_t** semWorkers){
-	thData->ID = id;
-	thData->nbrThreads = nbrThreads;
-	thData->gfx = gfx;
-	thData->semWorkers = semWorkers;
-	thData->semDisplay = semDisplay;
-}*/
-
-/***********************************************************************
- * initialize the struct to give to the displayer thread
- * @param displayVar struct to initialize
- * @param gfx context to share to show
- * @param frequency of the display
- * @return none
- **********************************************************************/
-/*void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency, uint *nbrWorkers, sem_t* semDisplay, sem_t** semWorkers){
-	displayVar->gfx = gfx;
-	displayVar->frequency = frequency;
-	displayVar->nbrWorkers = nbrWorkers;
-	displayVar->semWorkers = semWorkers;
-	displayVar->semDisplay = semDisplay;
-}*/
 
 /***********************************************************************
  * cancel the threads for a proper exit

@@ -11,24 +11,18 @@
  **********************************************************************/
 void* worker(void* threadData){
 
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-	
 	thData* tdata = (thData*) threadData;
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
 	int cellToTest = tdata->ID;
 
 	while(1){
-		sem_wait(&(tdata->semWorkers[0][tdata->ID]));
-
 		int i = 0;
-		
+		usleep(100000);
 		while(cellToTest <= scope){
 			lifeIsSad(cellToTest, tdata->gfx);
 			cellToTest = ++i * tdata->nbrThreads + tdata->ID;			
 		}
 		cellToTest = tdata->ID;
-		sem_post(tdata->semDisplay);
 	}
 	return NULL;
 }
@@ -101,23 +95,23 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
  * @return none
  **********************************************************************/
 void* display(void* gfx){
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-	
 	thData* displayVar = (thData*) gfx;
 	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, displayVar->height);
 	initGfx(displayVar->gfx,displayVar->seed,displayVar->probability);
-		
+	sem_post(displayVar->semDisplay);
+	struct timespec start, finish;
+	double deltaT = 0;
+	double time = (double)(1.0/displayVar->frequency);
+
+	clock_gettime(CLOCK_MONOTONIC,&start);
 	while(1){
-		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
-			sem_wait(displayVar->semDisplay);
-		}	
-		usleep(10000);	
+		clock_gettime(CLOCK_MONOTONIC,&finish);
+		deltaT = finish.tv_sec - start.tv_sec;
+		deltaT += (finish.tv_nsec - start.tv_nsec)/1000000000.0;
+		if(((time-deltaT)*1000000.0)>0) usleep((time-deltaT)*1000000.0);
 		swapPixel(displayVar->gfx);
-		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
-			sem_post(&(displayVar->semWorkers[0][i]));
-		}
 		gfx_present(displayVar->gfx);
+		clock_gettime(CLOCK_MONOTONIC,&start);
 	}
 	return NULL;
 }
@@ -160,7 +154,7 @@ void* escape(){
  * @param probability of having a cell alive
  * @return double between 0 and 1
  **********************************************************************/
-void initGfx(struct gfx_context_t* gfx, int seed, double probability){
+void initGfx(struct gfx_context_t* gfx, double seed, double probability){
 	srand(seed);
 	double val;
 	gfx_clear(gfx, COLOR_BLACK);
