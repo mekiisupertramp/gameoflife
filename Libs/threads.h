@@ -11,34 +11,35 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <time.h>
 
-#define ALIVE  COLOR_WHITE
+#define ALIVE  COLOR_YELLOW
 #define DEAD  COLOR_BLACK
 
-typedef struct display_st{
+typedef struct thData{
+	int ID;
+	int nbrThreads;
 	struct gfx_context_t* gfx;
-	uint frequency;
-    uint *nbrWorkers;
+	int frequency;
+	int *nbrWorkers;
 	sem_t* semDisplay;
-	sem_t* semWorkers;
-}displaySt;
-
-typedef struct threadsData{
-    int ID;
-    int nbrThreads;
-    struct gfx_context_t* gfx;
-    // surement une barrière ou une sémaphore
-	sem_t* semDisplay;
-	sem_t* semWorkers;
-} threadsData;
+	sem_t** semWorkers;
+	sem_t* gfxSynchro;
+	int width;
+	int height;
+	double seed;
+	double probability;
+}thData;
 
 void* worker(void* threadData);
+void* escape();
+void* display(void* displaySt);
+
 void lifeIsSad(int cellToTest, struct gfx_context_t* gfx);
 uint32_t isAlive(int x, int y, struct gfx_context_t* gfx);
 int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx);
-void* display(void* displaySt);
 void swapPixel(struct gfx_context_t* gfx);
-void* escape();
+void initGfx(struct gfx_context_t* gfx, double seed, double probability);
 
 
 #endif //GAMEOFLIFE_THREADS_H

@@ -11,52 +11,19 @@
  * @param probability of having a cell alive
  * @return double between 0 and 1
  **********************************************************************/
-void initGfx(struct gfx_context_t* gfx, int seed, double probability){
-	srand(seed);
-	double val;
-	gfx_clear(gfx, COLOR_BLACK);
-	for(int x = 1; x < (gfx->height-1); x++){
-		for(int y = 1; y < (gfx->width-1); y++){
-			val = (rand()/(double)RAND_MAX);
-			if(val <= probability){
- 				gfx_putpixel(gfx,x,y,ALIVE); 
-				gfx_putpixel2(gfx,x,y,ALIVE);
-			}else{ 
-				gfx_putpixel(gfx,x,y,DEAD); 
-				gfx_putpixel2(gfx,x,y,DEAD);
-			}
-		}
-	}
-}
-
-/***********************************************************************
- * initialize the struct to give to each thread
- * @param thData struct to initialize
- * @param id of the thread
- * @param gfx context to share to calculate
- * @return none
- **********************************************************************/
-void initWorkersStruct(threadsData* thData, int id, struct gfx_context_t* gfx, int nbrThreads, sem_t* semDisplay, sem_t* semWorkers){
-	thData->ID = id;
-	thData->nbrThreads = nbrThreads;
-	thData->gfx = gfx;
-	thData->semWorkers = thData->semDisplay = semDisplay;
-	thData->semWorkers=semWorkers;
-}
-
-/***********************************************************************
- * initialize the struct to give to the displayer thread
- * @param displayVar struct to initialize
- * @param gfx context to share to show
- * @param frequency of the display
- * @return none
- **********************************************************************/
-void initDisplayStruct(displaySt* displayVar, struct gfx_context_t* gfx, int frequency, uint *nbrWorkers, sem_t* semDisplay, sem_t* semWorkers){
-	displayVar->gfx = gfx;
-	displayVar->frequency = frequency;
-	displayVar->nbrWorkers = nbrWorkers;
-	displayVar->semWorkers = semWorkers;
-	displayVar->semDisplay = semDisplay;
+void initData(thData* data, int ID, int nbrThreads, int frequency, 
+					sem_t* display, sem_t** workers, sem_t* gfxSynchro,  int width, int height, 
+																				double seed, double probability){
+	data->ID = ID;
+	data->nbrThreads = nbrThreads;	
+	data->frequency = frequency;
+	data->semWorkers = workers;
+	data->semDisplay = display;
+	data->gfxSynchro = gfxSynchro;
+	data->width = width;
+	data->height = height;
+	data->seed = seed;
+	data->probability = probability;
 }
 
 /***********************************************************************
