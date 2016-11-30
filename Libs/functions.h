@@ -7,9 +7,8 @@
 #include "gfx.h"
 #include "threads.h" 
 
-void initGfx(struct gfx_context_t* gfx, int seed, double probability);
 void initData(thData* data, struct gfx_context_t* gfx, int ID, int nbrThreads, int frequency, 
-					int* nbrWorkers, sem_t* display, sem_t** workers);
+					int* nbrWorkers, sem_t* display, sem_t** workers, int width, int height, double seed, double probability);
 
 
 void exitTreads(pthread_t* workers, int nbrWorkers, pthread_t* displayer);

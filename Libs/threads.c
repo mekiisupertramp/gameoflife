@@ -3,7 +3,6 @@
 //
 
 #include "threads.h"
-#include "gfx.h"
 
 /***********************************************************************
  * function given to the thread wich will calculate cell's states
@@ -106,8 +105,8 @@ void* display(void* gfx){
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	
 	thData* displayVar = (thData*) gfx;
-	displayVar->gfx = gfx_create("Game of life bitches", 250, 250);
-	initGfx(displayVar->gfx,0.2,0.5);
+	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, displayVar->height);
+	initGfx(displayVar->gfx,displayVar->seed,displayVar->probability);
 		
 	while(1){
 		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
@@ -152,4 +151,29 @@ void* escape(){
 		usleep(20000);
 	}	
 	return NULL;
-}		
+}
+
+/***********************************************************************
+ * initialize the window context with random live cells and dead extrems
+ * @param gfx context to share to calculate
+ * @param seed to give to the srand function
+ * @param probability of having a cell alive
+ * @return double between 0 and 1
+ **********************************************************************/
+void initGfx(struct gfx_context_t* gfx, int seed, double probability){
+	srand(seed);
+	double val;
+	gfx_clear(gfx, COLOR_BLACK);
+	for(int x = 1; x < (gfx->height-1); x++){
+		for(int y = 1; y < (gfx->width-1); y++){
+			val = (rand()/(double)RAND_MAX);
+			if(val <= probability){
+				gfx_putpixel(gfx,x,y,ALIVE);
+				gfx_putpixel2(gfx,x,y,ALIVE);
+			}else{
+				gfx_putpixel(gfx,x,y,DEAD);
+				gfx_putpixel2(gfx,x,y,DEAD);
+			}
+		}
+	}
+}

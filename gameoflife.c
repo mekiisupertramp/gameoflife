@@ -14,7 +14,7 @@ int main(int argc, char** argv){
 
 		int width = atoi(argv[1]);
 		int height = atoi(argv[2]);
-		int seed = atoi(argv[3]);
+		double seed = atoi(argv[3]);
 		double probability = atof(argv[4]);
 		int frequency = atoi(argv[5]);
 		int nbrWorkers = atoi(argv[6]);
@@ -35,7 +35,7 @@ int main(int argc, char** argv){
 		
 		// init datas	
 		for(int i=0; i<nbrWorkers; i++){
-			initData(&data[i],&gfx,i,nbrWorkers,frequency,&nbrWorkers,&semDisplay,&semWorkers);
+			initData(&data[i],&gfx,i,nbrWorkers,frequency,&nbrWorkers,&semDisplay,&semWorkers, width, height, seed, probability);
 		}
 		
 		// display thread
@@ -44,7 +44,7 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}										
 		
-		usleep(1000000);
+		usleep(10000000);
 		
 
 		// workers thread

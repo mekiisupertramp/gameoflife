@@ -40,6 +40,10 @@ typedef struct thData{
 	int *nbrWorkers;
 	sem_t* semDisplay;
 	sem_t** semWorkers;
+	int width;
+	int height;
+	double seed;
+	double probability;
 }thData;
 
 void* worker(void* threadData);
@@ -50,5 +54,6 @@ void lifeIsSad(int cellToTest, struct gfx_context_t* gfx);
 uint32_t isAlive(int x, int y, struct gfx_context_t* gfx);
 int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx);
 void swapPixel(struct gfx_context_t* gfx);
+void initGfx(struct gfx_context_t* gfx, int seed, double probability);
 
 #endif //GAMEOFLIFE_THREADS_H

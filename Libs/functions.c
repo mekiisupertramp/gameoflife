@@ -11,50 +11,21 @@
  * @return double between 0 and 1
  **********************************************************************/
 void initData(thData* data, struct gfx_context_t* gfx, int ID, int nbrThreads, int frequency, 
-					int* nbrWorkers, sem_t* display, sem_t** workers){
+					int* nbrWorkers, sem_t* display, sem_t** workers, int width, int height, double seed, double probability){
 	data->ID = ID;
 	data->nbrThreads = nbrThreads;	
 	data->gfx = gfx;
 	data->frequency = frequency;
 	data->nbrWorkers = nbrWorkers;
 	data->semWorkers = workers;
-	data->semDisplay = display;			
+	data->semDisplay = display;
+	data->width = width;
+	data->height = height;
+	data->seed = seed;
+	data->probability = probability;
 }
-/*
-typedef struct thData{
-	int ID;
-	int nbrThreads;
-	struct gfx_context_t* gfx;
-	int frequency;
-	int *nbrWorkers;
-	sem_t* semDisplay;
-	sem_t** semWorkers;
-}thData;				*/
 
-/***********************************************************************
- * initialize the window context with random live cells and dead extrems
- * @param gfx context to share to calculate
- * @param seed to give to the srand function
- * @param probability of having a cell alive
- * @return double between 0 and 1
- **********************************************************************/
-void initGfx(struct gfx_context_t* gfx, int seed, double probability){
-	srand(seed);
-	double val;
-	gfx_clear(gfx, COLOR_BLACK);
-	for(int x = 1; x < (gfx->height-1); x++){
-		for(int y = 1; y < (gfx->width-1); y++){
-			val = (rand()/(double)RAND_MAX);
-			if(val <= probability){
- 				gfx_putpixel(gfx,x,y,ALIVE); 
-				gfx_putpixel2(gfx,x,y,ALIVE);
-			}else{ 
-				gfx_putpixel(gfx,x,y,DEAD); 
-				gfx_putpixel2(gfx,x,y,DEAD);
-			}
-		}
-	}
-}
+
 
 /***********************************************************************
  * initialize the struct to give to each thread
