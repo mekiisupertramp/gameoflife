@@ -44,7 +44,7 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}										
 		
-		usleep(1000000);
+		usleep(100000);
 		
 
 		// workers thread

@@ -51,4 +51,6 @@ uint32_t isAlive(int x, int y, struct gfx_context_t* gfx);
 int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx);
 void swapPixel(struct gfx_context_t* gfx);
 
+
+
 #endif //GAMEOFLIFE_THREADS_H

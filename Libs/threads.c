@@ -15,7 +15,7 @@ void* worker(void* threadData){
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	
-	threadsData* tdata = (threadsData*) threadData;
+	thData* tdata = (thData*) threadData;
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
 	int cellToTest = tdata->ID;
 
@@ -28,7 +28,6 @@ void* worker(void* threadData){
 			lifeIsSad(cellToTest, tdata->gfx);
 			cellToTest = ++i * tdata->nbrThreads + tdata->ID;			
 		}
-		
 		cellToTest = tdata->ID;
 		sem_post(tdata->semDisplay);
 	}
@@ -105,13 +104,16 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
 void* display(void* gfx){
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-	displaySt* displayVar = (displaySt*) gfx;
+	
+	thData* displayVar = (thData*) gfx;
+	displayVar->gfx = gfx_create("Game of life bitches", 250, 250);
+	initGfx(displayVar->gfx,0.2,0.5);
 		
 	while(1){
 		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
 			sem_wait(displayVar->semDisplay);
 		}	
-		usleep(100000);	
+		usleep(10000);	
 		swapPixel(displayVar->gfx);
 		for (int i = 0; i < *displayVar->nbrWorkers; ++i) {
 			sem_post(&(displayVar->semWorkers[0][i]));
@@ -132,7 +134,7 @@ void swapPixel(struct gfx_context_t* gfx){
 /// @return the key that was pressed or 0 if none was pressed.
 SDL_Keycode keypress() {
 	SDL_Event event;
-	if (SDL_PollEvent(&event)) {
+	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN)
 			return event.key.keysym.sym;
 	}
