@@ -21,7 +21,6 @@ typedef struct thData{
 	int nbrThreads;
 	struct gfx_context_t* gfx;
 	int frequency;
-	int *nbrWorkers;
 	sem_t* semDisplay;
 	sem_t** semWorkers;
 	sem_t* gfxSynchro;
@@ -38,6 +37,7 @@ void* display(void* displaySt);
 void lifeIsSad(int cellToTest, struct gfx_context_t* gfx);
 uint32_t isAlive(int x, int y, struct gfx_context_t* gfx);
 int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx);
+double waitAMoment(struct timespec* start, struct timespec* finish, int frequency);
 void swapPixel(struct gfx_context_t* gfx);
 void initGfx(struct gfx_context_t* gfx, double seed, double probability);
 

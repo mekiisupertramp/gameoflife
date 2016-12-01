@@ -21,8 +21,6 @@ void* worker(void* threadData){
 	sem_post(tdata->gfxSynchro);
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
 	int cellToTest = id;
-	
-	//printf("data[%d].gfx = %p\n",tdata->ID,tdata->gfx);
 
 	while(1){
 		sem_wait(&(tdata->semWorkers[0][id]));
@@ -71,12 +69,10 @@ uint32_t isAlive(int x, int y, struct gfx_context_t* gfx){
 			return DEAD;
 		}
 	}
-	else{
-		if(neighboursAlive == 3){
-			return ALIVE;
-		}else{
-			return DEAD;	
-		}
+	else if(neighboursAlive == 3){
+		return ALIVE;
+	}else{
+		return DEAD;	
 	}
 }
 
@@ -112,31 +108,38 @@ void* display(void* gfx){
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	thData* displayVar = (thData*) gfx;
-	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, 
-																								displayVar->height);
+	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, displayVar->height);
 	initGfx(displayVar->gfx,displayVar->seed,displayVar->probability);
 
 	struct timespec start, finish;
-	double deltaT=0;
-	double time = (double)(1.0/displayVar->frequency);
-	clock_gettime(CLOCK_MONOTONIC, &start);	
+	clock_gettime(CLOCK_MONOTONIC, &start);
 	while(1){
 		for (int i = 0; i < displayVar->nbrThreads; ++i) {
 			sem_wait(displayVar->semDisplay);
 		}	
-		clock_gettime(CLOCK_MONOTONIC, &finish);
-		deltaT = finish.tv_sec-start.tv_sec;
-		deltaT += (finish.tv_nsec-start.tv_nsec)/1000000000.0;		
-		if(((time-deltaT)*1000000.0)>0) usleep(((time-deltaT)*1000000.0));	
 		swapPixel(displayVar->gfx);
 		for (int i = 0; i < displayVar->nbrThreads; ++i) {
 			sem_post(&(displayVar->semWorkers[0][i]));
 		}
+		
+		usleep(waitAMoment(&start, &finish, displayVar->frequency));
 		gfx_present(displayVar->gfx);
 		sem_post(displayVar->gfxSynchro);
-		clock_gettime(CLOCK_MONOTONIC, &start);
+		
 	}
 	return NULL;
+}
+
+double waitAMoment(struct timespec* start, struct timespec* finish, int frequency){
+
+	double sleepTime, deltaT = 0;
+	clock_gettime(CLOCK_MONOTONIC, finish);
+	deltaT = (*finish).tv_sec - (*start).tv_sec;
+	deltaT += ((*finish).tv_nsec - (*start).tv_nsec)/1000000000.0;
+	sleepTime = (1000000.0/frequency) - deltaT;
+	clock_gettime(CLOCK_MONOTONIC, start);
+	
+	return (sleepTime > 0) ? sleepTime : 0;
 }
 
 void swapPixel(struct gfx_context_t* gfx){

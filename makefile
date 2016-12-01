@@ -3,9 +3,9 @@ LIBS=-lSDL2
 
 all: functions.o gfx.o threads.o gameoflife.o
 	gcc $^ -o gameoflife -lm -lpthread -lrt -g $(LIBS)
-	rm -rf *.o
+	rm -f *.o
 	rm -rf Libs/*.gch
-
+	
 functions.o: Libs/functions.c Libs/functions.h
 	$(CC) $^
 

@@ -9,6 +9,8 @@ int main(int argc, char** argv){
 	if(argc != 7){
 		showSyntax();
 	}else{
+		printf("program started\n");
+		
 		sem_t semDisplay;
 		sem_t* semWorkers;
 		sem_t gfxSynchro;
@@ -18,25 +20,24 @@ int main(int argc, char** argv){
 		double seed = atof(argv[3]);
 		double probability = atof(argv[4]);
 		uint frequency = atoi(argv[5]);
-		uint nbrWorkers = atoi(argv[6]);
+		uint nbrWorkers = atoi(argv[6]);		
 		thData data;
+		
+		pthread_t displayer;
+		pthread_t workers[nbrWorkers];					
+		pthread_t escaper;
 
 		sem_init(&semDisplay, 0, nbrWorkers);
 		sem_init(&gfxSynchro, 0, 0);
 		semWorkers = malloc(sizeof(sem_t)*nbrWorkers);
 		int i;
 		for (i = 0; i < nbrWorkers; ++i) {
-			sem_init(&(semWorkers[i]), 1, 0);
+			sem_init(&(semWorkers[i]), 0, 0);
 		}
-
-		pthread_t displayer;
-		pthread_t workers[nbrWorkers];					
-		pthread_t escaper;
-
 		
-		// initialisation of the structures with data		
+		// initialisation of the structure with data		
 		initData(&data,0,nbrWorkers,frequency,&semDisplay, &semWorkers,&gfxSynchro,
-																			 width, height, seed, probability);
+								width, height, seed, probability);
 
 		// display thread
 		if(pthread_create(&displayer,NULL,display,&data) != 0){
@@ -85,7 +86,7 @@ int main(int argc, char** argv){
 
 		gfx_destroy(data.gfx);
 
-		printf("finish programm\n");
+		printf("program finished\n");
 	}
 	return 0;
 }
