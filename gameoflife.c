@@ -19,7 +19,7 @@ int main(int argc, char** argv){
 		double probability = atof(argv[4]);
 		uint frequency = atoi(argv[5]);
 		uint nbrWorkers = atoi(argv[6]);
-		thData data[nbrWorkers];
+		thData data;
 
 		sem_init(&semDisplay, 0, nbrWorkers);
 		sem_init(&gfxSynchro, 0, 0);
@@ -35,14 +35,11 @@ int main(int argc, char** argv){
 
 		
 		// initialisation of the structures with data		
-		for(int i=0 ; i<nbrWorkers ; i++){
-			initData(&data[i],i,nbrWorkers,frequency,&semDisplay,
-															&semWorkers,&gfxSynchro, width, height, seed, 
-																										probability);
-		}
+		initData(&data,0,nbrWorkers,frequency,&semDisplay, &semWorkers,&gfxSynchro,
+																			 width, height, seed, probability);
 
 		// display thread
-		if(pthread_create(&displayer,NULL,display,&data[0]) != 0){
+		if(pthread_create(&displayer,NULL,display,&data) != 0){
 			fprintf(stderr, "display pthread_create failed !\n");
 			return EXIT_FAILURE;
 		}
@@ -50,11 +47,12 @@ int main(int argc, char** argv){
 		sem_wait(&gfxSynchro);
 		
 		for(int i = 0; i < nbrWorkers; i++){
-			data[i].gfx = data[0].gfx;
-			if(pthread_create(&workers[i],NULL,worker,&data[i]) != 0){
+			data.ID = i;
+			if(pthread_create(&workers[i],NULL,worker,&data) != 0){
 				fprintf(stderr, "workers pthread_create failed !\n");
 				return EXIT_FAILURE;
 			}
+			sem_wait(&gfxSynchro);
 		}
 		
 		// escape thread
@@ -85,7 +83,7 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}
 
-//		gfx_destroy(gfx);
+		gfx_destroy(data.gfx);
 
 		printf("finish programm\n");
 	}

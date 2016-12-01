@@ -16,22 +16,25 @@ void* worker(void* threadData){
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	
 	thData* tdata = (thData*)threadData;
+	int id = tdata->ID;
+
+	sem_post(tdata->gfxSynchro);
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
-	int cellToTest = tdata->ID;
+	int cellToTest = id;
 	
 	//printf("data[%d].gfx = %p\n",tdata->ID,tdata->gfx);
 
 	while(1){
-		sem_wait(&(tdata->semWorkers[0][tdata->ID]));
+		sem_wait(&(tdata->semWorkers[0][id]));
 
 		int i = 0;
 		
 		while(cellToTest <= scope){
 			lifeIsSad(cellToTest, tdata->gfx);
-			cellToTest = ++i * tdata->nbrThreads + tdata->ID;			
+			cellToTest = ++i * tdata->nbrThreads + id;			
 		}
 		
-		cellToTest = tdata->ID;
+		cellToTest = id;
 		sem_post(tdata->semDisplay);
 	}
 	return NULL;
