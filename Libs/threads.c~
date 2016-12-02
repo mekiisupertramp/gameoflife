@@ -12,8 +12,8 @@
  **********************************************************************/
 void* worker(void* threadData){
 
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	//pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	//pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	
 	thData* tdata = (thData*)threadData;
 	int id = tdata->ID;
@@ -24,6 +24,7 @@ void* worker(void* threadData){
 
 	while(1){
 		sem_wait(&(tdata->semWorkers[0][id]));
+		if(tdata->finish) return NULL;
 
 		int i = 0;
 		
@@ -104,8 +105,8 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
  * @return none
  **********************************************************************/
 void* display(void* gfx){
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	//pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	//pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	thData* displayVar = (thData*) gfx;
 	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, displayVar->height);
@@ -123,9 +124,13 @@ void* display(void* gfx){
 		for (int i = 0; i < displayVar->nbrThreads; ++i) {
 			sem_post(&(displayVar->semWorkers[0][i]));
 		}
+		if(displayVar->finish){
+			gfx_destroy(displayVar->gfx);
+			return NULL;
+		}
 		
 		usleep(waitAMoment(&start, &finish, displayVar->frequency));
-		gfx_present(displayVar->gfx);			
+		gfx_present(displayVar->gfx);					
 	}
 	return NULL;
 }
@@ -166,10 +171,15 @@ SDL_Keycode keypress() {
  * @param none
  * @return none
  **********************************************************************/
-void* escape(){	
+void* escape(void* data){	
+	thData* dataVar = (thData*) data;
 	while(keypress() != SDLK_ESCAPE){
 		usleep(20000);
 	}	
+	pthread_mutex_lock(dataVar->m);
+	printf("hello escape\n");
+	dataVar->finish = 1;
+	pthread_mutex_unlock(dataVar->m);
 	return NULL;
 }	
 

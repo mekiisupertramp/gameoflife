@@ -15,6 +15,8 @@
 
 #define ALIVE  COLOR_YELLOW
 #define DEAD  COLOR_BLACK
+#define FINISH	1
+#define NONFINISH 0
 
 typedef struct thData{
 	int ID;
@@ -23,8 +25,11 @@ typedef struct thData{
 	int height;
 	double seed;
 	double probability;
-	int frequency;
+	int frequency;	
 	struct gfx_context_t* gfx;	
+	
+	int finish;
+	pthread_mutex_t* m;
 	
 	sem_t* semDisplay;
 	sem_t** semWorkers;
@@ -32,7 +37,7 @@ typedef struct thData{
 }thData;
 
 void* worker(void* threadData);
-void* escape();
+void* escape(void* data);
 void* display(void* displaySt);
 
 void lifeIsSad(int cellToTest, struct gfx_context_t* gfx);

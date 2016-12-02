@@ -38,6 +38,10 @@ int main(int argc, char** argv){
 		// initialisation of the structure with data		
 		initData(&data,0,nbrWorkers,frequency,&semDisplay, &semWorkers,&gfxSynchro,
 								width, height, seed, probability);
+		pthread_mutex_t mutex;
+		pthread_mutex_init(&mutex,NULL);
+		data.m = &mutex;
+		data.finish = 0;
 		
 		// display thread
 		if(pthread_create(&displayer,NULL,display,&data) != 0){
@@ -47,6 +51,7 @@ int main(int argc, char** argv){
 
 		sem_wait(&gfxSynchro);
 		
+		// worker threads 
 		for(int i = 0; i < nbrWorkers; i++){
 			data.ID = i;
 			if(pthread_create(&workers[i],NULL,worker,&data) != 0){
@@ -57,7 +62,7 @@ int main(int argc, char** argv){
 		}
 		
 		// escape thread
-		if(pthread_create(&escaper,NULL,escape,NULL) != 0){
+		if(pthread_create(&escaper,NULL,escape,&data) != 0){
 			fprintf(stderr, "escape pthread_create failed !\n");
 			return EXIT_FAILURE;
 		}
@@ -67,9 +72,9 @@ int main(int argc, char** argv){
 			perror("escape pthread_join");
 			return EXIT_FAILURE;
 		}
-				
+					printf("quit Workers");
 		// proper exit
-		exitTreads(workers, nbrWorkers, &displayer);
+	//	exitTreads(workers, nbrWorkers, &displayer);
 
 		// join thread workers
 		for(int i = 0; i < nbrWorkers; i++){
@@ -78,12 +83,12 @@ int main(int argc, char** argv){
 				return EXIT_FAILURE;
 			}
 		}
+	
 		// join thread displayer
 		if (pthread_join(displayer,NULL) != 0) {
 			perror("displayer pthread_join");
 			return EXIT_FAILURE;
 		}
-		//gfx_destroy(data.gfx);
 
 		printf("program finished\n");
 	}
