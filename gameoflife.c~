@@ -83,7 +83,6 @@ int main(int argc, char** argv){
 			perror("displayer pthread_join");
 			return EXIT_FAILURE;
 		}
-		//gfx_destroy(data.gfx);
 
 		printf("program finished\n");
 	}

@@ -24,8 +24,11 @@ typedef struct thData{
 	double seed;
 	double probability;
 	int frequency;
+	int finish;
 	struct gfx_context_t* gfx;	
 	
+	
+	mutex mut;
 	sem_t* semDisplay;
 	sem_t** semWorkers;
 	sem_t* gfxSynchro;

@@ -90,7 +90,7 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
 		for (int e = -1; e <= 1; e++)
 		{
 			if(!((i == 0) && (e == 0))){
-				if((gfx->pixels[(gfx->width*(y+i))+(x+e)]) == ALIVE)
+				if((gfx->pixels[(gfx->width*(y+e))+(x+i)]) == ALIVE)
 					neighboursAlive++;
 			}			
 		}
@@ -110,6 +110,8 @@ void* display(void* gfx){
 	thData* displayVar = (thData*) gfx;
 	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, displayVar->height);
 	initGfx(displayVar->gfx,displayVar->seed,displayVar->probability);
+	
+	sem_post(displayVar->gfxSynchro);
 
 	struct timespec start, finish;
 	clock_gettime(CLOCK_MONOTONIC, &start);
@@ -123,9 +125,7 @@ void* display(void* gfx){
 		}
 		
 		usleep(waitAMoment(&start, &finish, displayVar->frequency));
-		gfx_present(displayVar->gfx);
-		sem_post(displayVar->gfxSynchro);
-		
+		gfx_present(displayVar->gfx);			
 	}
 	return NULL;
 }
@@ -184,8 +184,8 @@ void initGfx(struct gfx_context_t* gfx, double seed, double probability){
 	srand(seed);
 	double val;
 	gfx_clear(gfx, COLOR_BLACK);
-	for(int x = 1; x < (gfx->height-1); x++){
-		for(int y = 1; y < (gfx->width-1); y++){
+	for(int x = 1; x < (gfx->width-1); x++){
+		for(int y = 1; y < (gfx->height-1); y++){
 			val = (rand()/(double)RAND_MAX);
 			if(val <= probability){
  				gfx_putpixel(gfx,x,y,ALIVE); 
