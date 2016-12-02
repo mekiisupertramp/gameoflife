@@ -1,6 +1,16 @@
-//
-// Created by pierre.buffo on 23.11.16.
-//
+/*==========================================================================================
+  ==========================================================================================
+	File : threads.h
+
+   Descritpion: header of threads functions 
+	
+	Authors : Mehmed Blazevic, Buffo Pierre, Da Silva Marques Gabriel
+	
+	Date : December 2016
+
+   Version: 1.0.0
+
+==========================================================================================*/
 
 #ifndef GAMEOFLIFE_THREADS_H
 #define GAMEOFLIFE_THREADS_H

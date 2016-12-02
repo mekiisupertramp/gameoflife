@@ -1,20 +1,36 @@
-//
-// Created by pierre.buffo on 23.11.16.
-//
+/*==========================================================================================
+  ==========================================================================================
+	File : functions.c
+
+   Descritpion: Contain the fonctions for the main routine 
+	
+	Authors : Mehmed Blazevic, Buffo Pierre, Da Silva Marques Gabriel
+	
+	Date : December 2016
+
+   Version: 1.0.0
+
+==========================================================================================*/
 
 #include "functions.h"
 
 /***********************************************************************
- * initialize the window context with random live cells and dead extrems
- * @param gfx context to share to calculate
- * @param seed to give to the srand function
- * @param probability of having a cell alive
- * @return double between 0 and 1
+ * insert data in the structure gived to threads
+ * @param data Structure to fill
+ * @param nbrThreads
+ * @param frequency Frequncy of screen refresh
+ * @param display Semaphore for display synchronization
+ * @param workers Semaphore for workers synchronization
+ * @param gfxSynchro Semaphore for gfx creation synchronization
+ * @param width Width of the array
+ * @param height Height of the array
+ * @param seed Seed used for randomness
+ * @param probability Probability of having a living cell
+ * @return none
  **********************************************************************/
-void initData(thData* data, int ID, int nbrThreads, int frequency, 
+void initData(thData* data, int nbrThreads, int frequency, 
 					sem_t* display, sem_t** workers, sem_t* gfxSynchro,  int width, int height, 
-																				double seed, double probability){
-	data->ID = ID;
+					double seed, double probability){
 	data->nbrThreads = nbrThreads;	
 	data->frequency = frequency;
 	data->semWorkers = workers;

@@ -2,7 +2,16 @@
 // Created by pierre.buffo on 23.11.16.
 //
 
-#include "Libs/header.h"
+#define _GNU_SOURCE
+#include <semaphore.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <SDL2/SDL.h>
+#include <pthread.h>
+#include "Libs/gfx.h"
+#include "Libs/threads.h"
+#include "Libs/functions.h"
 
 
 int main(int argc, char** argv){
@@ -36,12 +45,12 @@ int main(int argc, char** argv){
 		}
 		
 		// initialisation of the structure with data		
-		initData(&data,0,nbrWorkers,frequency,&semDisplay, &semWorkers,&gfxSynchro,
+		initData(&data,nbrWorkers,frequency,&semDisplay, &semWorkers,&gfxSynchro,
 								width, height, seed, probability);
 		pthread_mutex_t mutex;
 		pthread_mutex_init(&mutex,NULL);
 		data.m = &mutex;
-		data.finish = 0;
+		data.finish = NONFINISH;
 		
 		// display thread
 		if(pthread_create(&displayer,NULL,display,&data) != 0){
@@ -58,6 +67,7 @@ int main(int argc, char** argv){
 				fprintf(stderr, "workers pthread_create failed !\n");
 				return EXIT_FAILURE;
 			}
+			// wait for gfx liberation
 			sem_wait(&gfxSynchro);
 		}
 		
@@ -72,9 +82,6 @@ int main(int argc, char** argv){
 			perror("escape pthread_join");
 			return EXIT_FAILURE;
 		}
-					printf("quit Workers");
-		// proper exit
-	//	exitTreads(workers, nbrWorkers, &displayer);
 
 		// join thread workers
 		for(int i = 0; i < nbrWorkers; i++){
