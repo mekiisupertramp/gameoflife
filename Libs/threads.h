@@ -31,7 +31,7 @@ typedef struct thData{
 }thData;
 
 void* worker(void* threadData);
-void* escape();
+void* escape(void* data);
 void* display(void* displaySt);
 
 void lifeIsSad(int cellToTest, struct gfx_context_t* gfx);
@@ -40,6 +40,5 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx);
 void swapPixel(struct gfx_context_t* gfx);
 void initGfx(struct gfx_context_t* gfx, double seed, double probability);
 double waitAMoment(struct timespec* start, struct timespec* finish, int frequency);
-
 
 #endif //GAMEOFLIFE_THREADS_H

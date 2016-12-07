@@ -26,7 +26,7 @@ void* worker(void* threadData){
 
 	while(1){
 		sem_wait(&(tdata->semWorkers[0][id]));
-
+	
 		int i = 0;
 		
 		while(cellToTest <= scope){
@@ -108,8 +108,6 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
  * @return none
  **********************************************************************/
 void* display(void* gfx){
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	thData* displayVar = (thData*) gfx;
 	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, 
@@ -120,7 +118,7 @@ void* display(void* gfx){
 	struct timespec start, finish;
 	clock_gettime(CLOCK_MONOTONIC, &start);	
 	while(1){
-		if(displayVar->gfx->pixels != NULL){
+		if(displayVar->probability != -1.0){
 			for (int i = 0; i < displayVar->nbrThreads; ++i) {
 				sem_wait(displayVar->semDisplay);
 			}				
@@ -130,6 +128,9 @@ void* display(void* gfx){
 			}
 			usleep(waitAMoment(&start, &finish, displayVar->frequency));
 		 	gfx_present(displayVar->gfx);			
+		}else{
+			gfx_destroy(displayVar->gfx);
+			return NULL;
 		}	
 	}
 	return NULL;
@@ -183,10 +184,12 @@ SDL_Keycode keypress() {
  * @param none
  * @return none
  **********************************************************************/
-void* escape(){	
+void* escape(void* data){
+	thData* datas = (thData*) data;	
 	while(keypress() != SDLK_ESCAPE){
 		usleep(20000);
 	}	
+	datas->probability = -1.0;
 	return NULL;
 }	
 

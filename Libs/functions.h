@@ -10,7 +10,6 @@
 void initData(thData* data, int nbrThreads, int frequency, 
 						sem_t* display, sem_t** workers, sem_t* gfxSynchro, int width, int height, 
 																				double seed, double probability);
-void exitTreads(thData* data, pthread_t* workers, int nbrWorkers, pthread_t* displayer);
 void showSyntax();
 
 #endif //GAMEOFLIFE_FUNCTIONS_H

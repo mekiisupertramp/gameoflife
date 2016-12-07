@@ -27,21 +27,6 @@ void initData(thData* data, int nbrThreads, int frequency,
 }
 
 /***********************************************************************
- * cancel the threads for a proper exit
- * @param workers to cancel
- * @param nbrWorkers to cancel
- * @param displayer to cancel
- * @return none
- **********************************************************************/
-void exitTreads(thData* data, pthread_t* workers, int nbrWorkers, pthread_t* displayer){
-	for (int i = 0; i < nbrWorkers; i++){
-		pthread_cancel(workers[i]);
-	}
-	gfx_destroy(data->gfx); 
-	pthread_cancel(*displayer);	
-}
-
-/***********************************************************************
  * show the syntax to throw the game
  * @param : none
  * @return : none

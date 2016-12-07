@@ -4,7 +4,6 @@
 
 #include "Libs/header.h"
 
-
 int main(int argc, char** argv){
 	if(argc != 7){
 		showSyntax();
@@ -19,8 +18,13 @@ int main(int argc, char** argv){
 		double probability = atof(argv[4]);
 		uint frequency = atoi(argv[5]);
 		uint nbrWorkers = atoi(argv[6]);
+		
 		thData data;
-
+		pthread_t displayer;
+		pthread_t workers[nbrWorkers];					
+		pthread_t escaper;
+		
+		// init semaphores
 		sem_init(&semDisplay, 0, nbrWorkers);
 		sem_init(&gfxSynchro, 0, 0);
 		semWorkers = malloc(sizeof(sem_t)*nbrWorkers);
@@ -28,13 +32,8 @@ int main(int argc, char** argv){
 		for (i = 0; i < nbrWorkers; ++i) {
 			sem_init(&(semWorkers[i]), 1, 0);
 		}
-
-		pthread_t displayer;
-		pthread_t workers[nbrWorkers];					
-		pthread_t escaper;
-
 				
-		// initialisation of the structure with data		
+		// initialisation of the structure with datas		
 		initData(&data,nbrWorkers,frequency,&semDisplay, &semWorkers,&gfxSynchro,
 								width, height, seed, probability);
 
@@ -44,6 +43,7 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}
 
+		// wait for creating the gfx context
 		sem_wait(&gfxSynchro);
 		
 		for(int i = 0; i < nbrWorkers; i++){
@@ -67,8 +67,7 @@ int main(int argc, char** argv){
 			return EXIT_FAILURE;
 		}
 				
-		// proper exit
-		//exitTreads(&data,workers, nbrWorkers, &displayer);
+		// cancel workers
 		for (int i = 0; i < nbrWorkers; i++){
 			pthread_cancel(workers[i]);
 		}
@@ -79,17 +78,19 @@ int main(int argc, char** argv){
 				perror("workers pthread_join");
 				return EXIT_FAILURE;
 			}
+			// free display semaphore
+			sem_post(data.semDisplay);
 		}
 		
-		gfx_destroy(data.gfx); 
-		pthread_cancel(displayer);	
 		// join thread displayer
 		if (pthread_join(displayer,NULL) != 0) {
 			perror("displayer pthread_join");
 			return EXIT_FAILURE;
 		}
-
-		printf("finish programm\n");
+		sem_destroy(&semDisplay);
+		for(int i=0 ; i <nbrWorkers ; i++) sem_destroy(&semWorkers[i]);
+		free(semWorkers);
+		sem_destroy(&gfxSynchro);
 	}
 	return 0;
 }
