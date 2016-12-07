@@ -1,13 +1,23 @@
-//
-// Created by pierre.buffo on 23.11.16.
-//
+/*==========================================================================================
+  ==========================================================================================
+	File : threads.c
+
+   Descritpion: implementation of thread functions
+	
+	Authors : Mehmed Blazevic, Buffo Pierre, Da Silva Marques Gabriel
+	
+	Date : December 2016
+
+   Version: 1.0.0
+
+==========================================================================================*/
 
 #include "threads.h"
-#include "gfx.h"
+
 
 /***********************************************************************
  * function given to the thread wich will calculate cell's states
- * @param threadData Structure with all the informations
+ * @param threadData - structure with all the informations
  * @return NULL
  **********************************************************************/
 void* worker(void* threadData){
@@ -17,53 +27,48 @@ void* worker(void* threadData){
 	
 	thData* tdata = (thData*)threadData;
 	int id = tdata->ID;
-
-	// waiting for gfx creation
-	sem_post(tdata->gfxSynchro);
+	sem_post(tdata->gfxSynchro); // liberates main for the next worker 
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
-	int cellToTest = id;
-	
+	int cellToTest = id;	
 
 	while(1){
-		sem_wait(&(tdata->semWorkers[0][id]));
+		sem_wait(&(tdata->semWorkers[0][id])); // waiting for display 
 	
 		int i = 0;
-		
 		while(cellToTest <= scope){
 			lifeIsSad(cellToTest, tdata->gfx);
 			cellToTest = ++i * tdata->nbrThreads + id;			
 		}
 		
 		cellToTest = id;
-		sem_post(tdata->semDisplay);
+		sem_post(tdata->semDisplay);	// liberates display sem.
 	}
 	return NULL;
 }
 
 /***********************************************************************
  * kill or give life to a cell by editing his colour 
- * @param cellToTest the number of the cell to check
- * @param gfx Context
+ * @param cellToTest - the number of the cell to check
+ * @param gfx 			- context
  * @return none
  **********************************************************************/
 void lifeIsSad(int cellToTest, struct gfx_context_t* gfx){
-	
 	int x = (cellToTest%(gfx->width-2)) + 1;
 	int y = (cellToTest/(gfx->width-2)) + 1;
-	
+	// writing in the next pixels state array 
 	gfx_putpixel2(gfx,x,y,isAlive(x,y,gfx));
 }
 
 /***********************************************************************
  * say if the cell will survive or not
- * @param line Line of the cell to check
- * @param col Col of the cell to check
- * @param gfx Context
- * @return the colour
+ * @param x   - col of the cell to check
+ * @param y   - line of the cell to check
+ * @param gfx - context
+ * @return the next colour of cell
  **********************************************************************/
 uint32_t isAlive(int x, int y, struct gfx_context_t* gfx){
 	int neighboursAlive = countNeighboursAlive(x,y,gfx);
-	
+	// check the present pixels state array 
 	if(gfx->pixels[gfx->width*y+x] == ALIVE){
 		if((neighboursAlive == 2) || (neighboursAlive == 3)){
 			return ALIVE;
@@ -81,11 +86,11 @@ uint32_t isAlive(int x, int y, struct gfx_context_t* gfx){
 }
 
 /***********************************************************************
- * Count the number of neighbours alive of a cell
- * @param line Line to check the neigbours
- * @param col Col to check the neigbours
- * @param gfx Context
- * @return int The number of neighbourgs alive
+ * count the number of neighbours alive of a cell
+ * @param line - line to check the neigbours
+ * @param col  - col to check the neigbours
+ * @param gfx  - context
+ * @return the number of neighbourgs alive
  **********************************************************************/
 int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
 	int neighboursAlive = 0;
@@ -103,33 +108,39 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
 }
 
 /***********************************************************************
- * fuck it i'm too tired for this shit
- * @param gfx Context to show
- * @return none
+ * displaying thread
+ * also create, present, and destroy gfx
+ * @param gfx - structure with all the informations including the 
+ *					 context to display 
+ * @return NULL
  **********************************************************************/
 void* display(void* gfx){
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	thData* displayVar = (thData*) gfx;
-	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, 
-																								displayVar->height);
+	// create and initialise the gfx contaxt 
+	displayVar->gfx = gfx_create("Game of life bitches", 
+											displayVar->width, displayVar->height);
 	initGfx(displayVar->gfx,displayVar->seed,displayVar->probability);
+	
+	// workers first liberation 
 	sem_post(displayVar->gfxSynchro);
 
 	struct timespec start, finish;
 	clock_gettime(CLOCK_MONOTONIC, &start);	
 	while(1){
+		// probability is also used for destroy the context properly
 		if(displayVar->probability != -1.0){
+			// wait for every workers end 
 			for (int i = 0; i < displayVar->nbrThreads; ++i) {
 				sem_wait(displayVar->semDisplay);
-			}				
+			}							
 			swapPixel(displayVar->gfx);
+			// liberates all workers for process
 			for (int i = 0; i < displayVar->nbrThreads; ++i) {
 				sem_post(&(displayVar->semWorkers[0][i]));
 			}
 			usleep(waitAMoment(&start, &finish, displayVar->frequency));
-		 	gfx_present(displayVar->gfx);			
+		 	gfx_present(displayVar->gfx);		 			
 		}else{
 			gfx_destroy(displayVar->gfx);
 			return NULL;
@@ -139,10 +150,11 @@ void* display(void* gfx){
 }
 
 /***********************************************************************
- * calculate the time to wait before the next refresh with the time of process
- * @param start Start struct with the timer's begin
- * @param finish Finish struct with the timer's end
- * @param frequency freq of screen refresh
+ * calculate the time to wait before the next refresh with the process 
+ *	time 
+ * @param start 	  - start struct with the timer's begin
+ * @param finish 	  - finish struct with the timer's end
+ * @param frequency - freq of screen refresh
  * @return time to wait in nanoseconds or 0 if work process too long
  **********************************************************************/
 double waitAMoment(struct timespec* start, struct timespec* finish, int frequency){
@@ -159,7 +171,7 @@ double waitAMoment(struct timespec* start, struct timespec* finish, int frequenc
 
 /***********************************************************************
  * swap the two pointers of the gfx context to restart a process
- * @param gfx Context with arrays
+ * @param gfx - context with arrays
  * @return none
  **********************************************************************/
 void swapPixel(struct gfx_context_t* gfx){
@@ -181,9 +193,8 @@ SDL_Keycode keypress() {
 }	
 
 /***********************************************************************
- * check every 20ms, if a escape touch is pressed. the programm stop
- * properly if escape is pressed
- * @param none
+ * check every 20ms, if a escape touch is pressed
+ * @param data - structure with all the informations 
  * @return none
  **********************************************************************/
 void* escape(void* data){
@@ -191,25 +202,27 @@ void* escape(void* data){
 	while(keypress() != SDLK_ESCAPE){
 		usleep(20000);
 	}	
+	// probability is used a second time for destroy the context properly
 	datas->probability = -1.0;
 	return NULL;
 }	
 
 /***********************************************************************
  * initialize the window context with random live cells and dead extrems
- * @param gfx context to share to calculate
- * @param seed to give to the srand function
- * @param probability of having a cell alive
- * @return double between 0 and 1
+ * @param gfx  		 - context to share to calculate
+ * @param seed 		 - to give to the srand function
+ * @param probability - of having a cell alive
+ * @return none
  **********************************************************************/
 void initGfx(struct gfx_context_t* gfx, double seed, double probability){
 	srand(seed);
 	double val;
-	gfx_clear(gfx, COLOR_BLACK);
+	gfx_clear(gfx, DEAD);
 	for(int x = 1; x < (gfx->width-1); x++){
 		for(int y = 1; y < (gfx->height-1); y++){
 			val = (rand()/(double)RAND_MAX);
-			if(val <= probability){
+			if(val < probability){
+				// fill the present and the next state of pixels 
  				gfx_putpixel(gfx,x,y,ALIVE); 
 				gfx_putpixel2(gfx,x,y,ALIVE);
 			}else{ 

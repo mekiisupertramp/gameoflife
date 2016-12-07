@@ -30,7 +30,7 @@ struct gfx_context_t* gfx_create(char *title, uint width, uint height) {
 	ctxt->width = width;
 	ctxt->height = height;
 	ctxt->pixels = pixels;
-    ctxt->pixelsNextState = pixelsNextState;
+   ctxt->pixelsNextState = pixelsNextState;
 
 	SDL_ShowCursor(SDL_DISABLE);
 	gfx_clear(ctxt, COLOR_BLACK);
@@ -63,8 +63,10 @@ void gfx_putpixel2(struct gfx_context_t *ctxt, int x, int y, uint32_t color) {
 /// @param ctxt Graphic context to clear.
 /// @param color Color to use.
 void gfx_clear(struct gfx_context_t *ctxt, uint32_t color) {
-	memset(ctxt->pixels, color, ctxt->width*ctxt->height*sizeof(uint32_t));
-	memset(ctxt->pixelsNextState, color, ctxt->width*ctxt->height*sizeof(uint32_t));
+	for(int i=0 ; i < ctxt->width*ctxt->height ; i++){
+		ctxt->pixels[i] = color;
+		ctxt->pixelsNextState[i] = color;
+	}
 }
 
 /// Display the graphic context.
