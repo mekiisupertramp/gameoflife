@@ -1,16 +1,7 @@
-/*==========================================================================================
-  ==========================================================================================
-	File : threads.c
+//
+// Created by pierre.buffo on 23.11.16.
+//
 
-   Descritpion: implementation of thread functions
-	
-	Authors : Mehmed Blazevic, Buffo Pierre, Da Silva Marques Gabriel
-	
-	Date : December 2016
-
-   Version: 1.0.0
-
-==========================================================================================*/
 #include "threads.h"
 #include "gfx.h"
 
@@ -20,19 +11,21 @@
  * @return NULL
  **********************************************************************/
 void* worker(void* threadData){
+
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	
 	thData* tdata = (thData*)threadData;
 	int id = tdata->ID;
-	
+
 	// waiting for gfx creation
 	sem_post(tdata->gfxSynchro);
 	int scope = (tdata->gfx->height-2)*(tdata->gfx->width-2);
 	int cellToTest = id;
+	
 
 	while(1){
-		// waiting for display liberation
 		sem_wait(&(tdata->semWorkers[0][id]));
-		if(tdata->finish == FINISH) return NULL;
 
 		int i = 0;
 		
@@ -42,7 +35,6 @@ void* worker(void* threadData){
 		}
 		
 		cellToTest = id;
-		// liberation of display
 		sem_post(tdata->semDisplay);
 	}
 	return NULL;
@@ -59,16 +51,15 @@ void lifeIsSad(int cellToTest, struct gfx_context_t* gfx){
 	int x = (cellToTest%(gfx->width-2)) + 1;
 	int y = (cellToTest/(gfx->width-2)) + 1;
 	
-	// writing in the second array
 	gfx_putpixel2(gfx,x,y,isAlive(x,y,gfx));
 }
 
 /***********************************************************************
  * say if the cell will survive or not
- * @param x Col of the cell to check
- * @param y Line of the cell to check
+ * @param line Line of the cell to check
+ * @param col Col of the cell to check
  * @param gfx Context
- * @return the next colour of cell
+ * @return the colour
  **********************************************************************/
 uint32_t isAlive(int x, int y, struct gfx_context_t* gfx){
 	int neighboursAlive = countNeighboursAlive(x,y,gfx);
@@ -80,17 +71,19 @@ uint32_t isAlive(int x, int y, struct gfx_context_t* gfx){
 			return DEAD;
 		}
 	}
-	else if(neighboursAlive == 3){
-		return ALIVE;
-	}else{
-		return DEAD;	
+	else{
+		if(neighboursAlive == 3){
+			return ALIVE;
+		}else{
+			return DEAD;	
+		}
 	}
 }
 
 /***********************************************************************
- * Count the number of neighbours of a cell alive
- * @param x Col to check the neigbours
- * @param y Line to check the neigbours
+ * Count the number of neighbours alive of a cell
+ * @param line Line to check the neigbours
+ * @param col Col to check the neigbours
  * @param gfx Context
  * @return int The number of neighbourgs alive
  **********************************************************************/
@@ -101,7 +94,7 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
 		for (int e = -1; e <= 1; e++)
 		{
 			if(!((i == 0) && (e == 0))){
-				if((gfx->pixels[(gfx->width*(y+e))+(x+i)]) == ALIVE)
+				if((gfx->pixels[(gfx->width*(y+i))+(x+e)]) == ALIVE)
 					neighboursAlive++;
 			}			
 		}
@@ -110,40 +103,34 @@ int countNeighboursAlive(int x, int y, struct gfx_context_t* gfx){
 }
 
 /***********************************************************************
- * displaying thread
- * also create, present, and destroy gfx
+ * fuck it i'm too tired for this shit
  * @param gfx Context to show
- * @return NULL
+ * @return none
  **********************************************************************/
 void* display(void* gfx){
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	thData* displayVar = (thData*) gfx;
-	// create and initialise the gfx context
-	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, displayVar->height);
+	displayVar->gfx = gfx_create("Game of life bitches", displayVar->width, 
+																								displayVar->height);
 	initGfx(displayVar->gfx,displayVar->seed,displayVar->probability);
-	
-	// workers first liberation
 	sem_post(displayVar->gfxSynchro);
 
 	struct timespec start, finish;
-	clock_gettime(CLOCK_MONOTONIC, &start);
+	clock_gettime(CLOCK_MONOTONIC, &start);	
 	while(1){
-		// wait for workers end process
-		for (int i = 0; i < displayVar->nbrThreads; ++i) {
-			sem_wait(displayVar->semDisplay);
+		if(displayVar->gfx->pixels != NULL){
+			for (int i = 0; i < displayVar->nbrThreads; ++i) {
+				sem_wait(displayVar->semDisplay);
+			}				
+			swapPixel(displayVar->gfx);
+			for (int i = 0; i < displayVar->nbrThreads; ++i) {
+				sem_post(&(displayVar->semWorkers[0][i]));
+			}
+			usleep(waitAMoment(&start, &finish, displayVar->frequency));
+		 	gfx_present(displayVar->gfx);			
 		}	
-		swapPixel(displayVar->gfx);
-		// workers liberation for process
-		for (int i = 0; i < displayVar->nbrThreads; ++i) {
-			sem_post(&(displayVar->semWorkers[0][i]));
-		}
-		if(displayVar->finish == FINISH){
-			gfx_destroy(displayVar->gfx);
-			return NULL;
-		}
-		
-		usleep(waitAMoment(&start, &finish, displayVar->frequency));
-		gfx_present(displayVar->gfx);					
 	}
 	return NULL;
 }
@@ -191,19 +178,15 @@ SDL_Keycode keypress() {
 }	
 
 /***********************************************************************
- * check every 20ms, if a escape touch is pressed. the programm stops
+ * check every 20ms, if a escape touch is pressed. the programm stop
  * properly if escape is pressed
  * @param none
- * @return NULL
+ * @return none
  **********************************************************************/
-void* escape(void* data){	
-	thData* dataVar = (thData*) data;
+void* escape(){	
 	while(keypress() != SDLK_ESCAPE){
 		usleep(20000);
 	}	
-	pthread_mutex_lock(dataVar->m);
-	dataVar->finish = FINISH;
-	pthread_mutex_unlock(dataVar->m);
 	return NULL;
 }	
 
@@ -212,7 +195,7 @@ void* escape(void* data){
  * @param gfx context to share to calculate
  * @param seed to give to the srand function
  * @param probability of having a cell alive
- * @return none
+ * @return double between 0 and 1
  **********************************************************************/
 void initGfx(struct gfx_context_t* gfx, double seed, double probability){
 	srand(seed);
@@ -222,7 +205,6 @@ void initGfx(struct gfx_context_t* gfx, double seed, double probability){
 		for(int y = 1; y < (gfx->height-1); y++){
 			val = (rand()/(double)RAND_MAX);
 			if(val <= probability){
-				// fill the two tabs
  				gfx_putpixel(gfx,x,y,ALIVE); 
 				gfx_putpixel2(gfx,x,y,ALIVE);
 			}else{ 

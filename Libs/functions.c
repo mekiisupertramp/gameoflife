@@ -1,36 +1,20 @@
-/*==========================================================================================
-  ==========================================================================================
-	File : functions.c
-
-   Descritpion: Contain the fonctions for the main routine 
-	
-	Authors : Mehmed Blazevic, Buffo Pierre, Da Silva Marques Gabriel
-	
-	Date : December 2016
-
-   Version: 1.0.0
-
-==========================================================================================*/
+//
+// Created by pierre.buffo on 23.11.16.
+//
 
 #include "functions.h"
 
 /***********************************************************************
- * insert data in the structure gived to threads
- * @param data Structure to fill
- * @param nbrThreads
- * @param frequency Frequncy of screen refresh
- * @param display Semaphore for display synchronization
- * @param workers Semaphore for workers synchronization
- * @param gfxSynchro Semaphore for gfx creation synchronization
- * @param width Width of the array
- * @param height Height of the array
- * @param seed Seed used for randomness
- * @param probability Probability of having a living cell
- * @return none
+ * initialize the window context with random live cells and dead extrems
+ * @param gfx context to share to calculate
+ * @param seed to give to the srand function
+ * @param probability of having a cell alive
+ * @return double between 0 and 1
  **********************************************************************/
 void initData(thData* data, int nbrThreads, int frequency, 
 					sem_t* display, sem_t** workers, sem_t* gfxSynchro,  int width, int height, 
-					double seed, double probability){
+																				double seed, double probability){
+	data->ID = 0;
 	data->nbrThreads = nbrThreads;	
 	data->frequency = frequency;
 	data->semWorkers = workers;
@@ -49,11 +33,12 @@ void initData(thData* data, int nbrThreads, int frequency,
  * @param displayer to cancel
  * @return none
  **********************************************************************/
-void exitTreads(pthread_t* workers, int nbrWorkers, pthread_t* displayer){
-	pthread_cancel(*displayer);	
+void exitTreads(thData* data, pthread_t* workers, int nbrWorkers, pthread_t* displayer){
 	for (int i = 0; i < nbrWorkers; i++){
 		pthread_cancel(workers[i]);
 	}
+	gfx_destroy(data->gfx); 
+	pthread_cancel(*displayer);	
 }
 
 /***********************************************************************

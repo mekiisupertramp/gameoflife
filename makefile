@@ -2,8 +2,10 @@ CC = gcc -Wall -std=gnu99 -c -lm -lpthread -lrt -g
 LIBS=-lSDL2
 
 all: functions.o gfx.o threads.o gameoflife.o
-	gcc $^ -o gameoflife -lm -lpthread -lrt -g $(LIBS)
-	
+	gcc $^ -o gameoflife -lm -lpthread -lrt $(LIBS)
+	rm -rf *.o
+	rm -rf Libs/*.gch
+
 functions.o: Libs/functions.c Libs/functions.h
 	$(CC) $^
 

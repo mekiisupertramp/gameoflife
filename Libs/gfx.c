@@ -74,6 +74,13 @@ void gfx_present(struct gfx_context_t *ctxt) {
 	SDL_RenderCopy(ctxt->renderer, ctxt->texture, NULL, NULL);
 	SDL_RenderPresent(ctxt->renderer);
 }
+/// Display the graphic context.
+/// @param ctxt Graphic context to clear.
+void gfx_present2(struct gfx_context_t *ctxt) {
+	SDL_UpdateTexture(ctxt->texture, NULL, ctxt->pixelsNextState, ctxt->width*sizeof(uint32_t));
+	SDL_RenderCopy(ctxt->renderer, ctxt->texture, NULL, NULL);
+	SDL_RenderPresent(ctxt->renderer);
+}
 
 /// Destroy a graphic window.
 /// @param ctxt Graphic context of the window to close.

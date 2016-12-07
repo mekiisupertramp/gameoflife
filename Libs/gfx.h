@@ -33,5 +33,6 @@ extern void gfx_clear(struct gfx_context_t *ctxt, uint32_t color);
 extern struct gfx_context_t* gfx_create(char *text, uint width, uint height);
 extern void gfx_destroy(struct gfx_context_t *ctxt);
 extern void gfx_present(struct gfx_context_t *ctxt);
+extern void gfx_present2(struct gfx_context_t *ctxt);
 
 #endif
